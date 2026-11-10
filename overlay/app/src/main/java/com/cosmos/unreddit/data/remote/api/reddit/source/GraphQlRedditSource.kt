@@ -333,7 +333,7 @@ class GraphQlRedditSource @Inject constructor(
             .put("display_name", name)
             .put("header_img", nullableString(banner))
             .put("title", firstNonEmpty(community.optString("title"), name))
-            .put("primary_color", nullableString(styles.optString("primaryColor")))
+            .put("primary_color", nullableString(sanitizeColor(styles.optString("primaryColor"))))
             .put("active_user_count", JSONObject.NULL)
             .put("icon_img", nullableString(icon))
             .put("subscribers", community.optInt("subscribersCount", 0))
@@ -341,7 +341,7 @@ class GraphQlRedditSource @Inject constructor(
             .put("public_description_html", safeHtml("", description))
             .put("community_icon", icon)
             .put("banner_background_image", banner)
-            .put("key_color", nullableString(styles.optString("keyColor")))
+            .put("key_color", nullableString(sanitizeColor(styles.optString("keyColor"))))
             .put("banner_background_color", JSONObject.NULL)
             .put("over18", community.optBoolean("isNsfw", false))
             .put("description_html", safeHtml("", description))
@@ -730,6 +730,10 @@ class GraphQlRedditSource @Inject constructor(
         private const val SEARCH_USERS_HASH = "d9211ac33f72079f25cb4c8a8e00a2b4889e984f70278ec91283965c7856d33d"
         private const val POST_COMMENTS_HASH = "314f29c2494fd78c7844ef2c6b09acb4bef5b37ab50b4ddc01691d6d5c8433f8"
 
+        private val ANDROID_HEX_COLOR = Regex("^#(?:[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$")
+
+        internal fun sanitizeColor(value: String?): String? =
+            value?.trim()?.takeIf { ANDROID_HEX_COLOR.matches(it) }
         internal data class PostReference(val postId: String, val commentId: String?)
 
         internal fun parsePostReference(permalink: String): PostReference {
