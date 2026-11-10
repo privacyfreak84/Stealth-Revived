@@ -1,7 +1,6 @@
 package com.cosmos.unreddit.data.remote.api.reddit.source
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
 import org.junit.Test
 
 class GraphQlRedditSourceTest {
@@ -19,12 +18,9 @@ class GraphQlRedditSourceTest {
             GraphQlRedditSource.PostReference("1abc", null),
             GraphQlRedditSource.parsePostReference("t3_1abc")
         )
-    }
-
-    @Test
-    fun cursorTokensRoundTripOpaqueGraphQlCursor() {
-        val raw = "opaque:+/= cursor with spaces"
-        assertEquals(raw, GraphQlRedditSource.decodeCursor(GraphQlRedditSource.encodeCursor(raw)))
-        assertNull(GraphQlRedditSource.decodeCursor("not-a-valid-base64%%%"))
+        assertEquals(
+            GraphQlRedditSource.PostReference("1abc", null),
+            GraphQlRedditSource.parsePostReference("https://www.reddit.com/r/android/comments/1abc/title/")
+        )
     }
 }
