@@ -1,0 +1,29 @@
+name: Temporary Material 3 source export
+on:
+  push:
+    branches:
+      - material3-audit-export
+permissions:
+  contents: read
+  actions: write
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project and pinned Android source
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Export overlay and build metadata
+        run: |
+          mkdir -p export
+          tar -czf export/material3-overlay.tar.gz overlay
+          sha256sum export/material3-overlay.tar.gz > export/SHA256SUMS
+          find overlay -type f | sort > export/overlay-files.txt
+      - name: Upload source snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: material3-overlay-source
+          path: export/*
+          if-no-files-found: error
+          retention-days: 1
