@@ -817,7 +817,13 @@ class GraphQlRedditSource @Inject constructor(
     private fun formattedRichText(node: JSONObject): String {
         val text = jsonString(node, "t")
         if (text.isEmpty()) return ""
-        val codePoints = text.codePoints().toArray()
+        val codePoints = mutableListOf<Int>()
+        var textOffset = 0
+        while (textOffset < text.length) {
+            val codePoint = Character.codePointAt(text, textOffset)
+            codePoints.add(codePoint)
+            textOffset += Character.charCount(codePoint)
+        }
         val formats = IntArray(codePoints.size)
         val ranges = node.optJSONArray("f") ?: JSONArray()
         for (rangeIndex in 0 until ranges.length()) {
