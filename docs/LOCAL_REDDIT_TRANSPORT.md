@@ -23,7 +23,7 @@ The pinned Android baseline contains these mechanisms:
 - An app-only token manager obtains a token from Reddit's Android OAuth endpoint and caches it for the returned lifetime.
 - The OAuth interceptor attaches the bearer token and associated Android client headers. On HTTP 401 it invalidates the cached token, refreshes, and retries once.
 - The path interceptor encodes routes Reddit rejects literally for app-only requests: comment-thread routes, `/api/morechildren`, `/api/info` and multi-subreddit separators.
-- Moshi adapters decode the JSON into Stewards' existing models. The overlay adds regression tests for the URL rewrites.
+- Moshi adapters decode the JSON into Stealth's existing models. The overlay adds regression tests for the URL rewrites.
 
 The overlay fixes the app's runtime source to this on-device Reddit path. Legacy saved preferences that selected Teddit or old.reddit scraping are interpreted as the local source, and the source-selection dialog no longer exposes instance choices.
 
