@@ -145,11 +145,11 @@
     </style>
 
     <style name="Widget.App.SnackbarButton" parent="Widget.Material3.Button.TextButton.Snackbar">
-        <item name="android:textColor">?attr/colorOnInverseSurface</item>
+        <item name="android:textColor">?attr/colorOnSurfaceInverse</item>
     </style>
 
     <style name="Widget.App.SnackbarTextView" parent="Widget.Material3.Snackbar.TextView">
-        <item name="android:textColor">?attr/colorOnInverseSurface</item>
+        <item name="android:textColor">?attr/colorOnSurfaceInverse</item>
     </style>
 
     <style name="SwitchStyle" parent="Widget.Material3.CompoundButton.Switch" />
