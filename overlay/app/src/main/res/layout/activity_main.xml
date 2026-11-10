@@ -43,7 +43,7 @@
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/app_navigation"
-        android:layout_width="min(360dp, 88%)"
+        android:layout_width="320dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:background="?attr/colorSurfaceContainerLow"
