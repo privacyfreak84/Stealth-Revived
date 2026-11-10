@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme.TokyoNight" parent="AppTheme">
+        <item name="colorPrimary">#7AA2F7</item><item name="colorPrimaryDark">#3D59A1</item><item name="colorSecondary">#BB9AF7</item><item name="colorAccent">#BB9AF7</item><item name="colorSurface">#24283B</item><item name="colorOnSurface">#C0CAF5</item><item name="android:colorBackground">#1A1B26</item><item name="android:textColor">#C0CAF5</item><item name="colorControlActivated">#7AA2F7</item><item name="android:windowLightStatusBar">false</item>
+    </style>
+    <style name="AppTheme.Nord" parent="AppTheme">
+        <item name="colorPrimary">#81A1C1</item><item name="colorPrimaryDark">#5E81AC</item><item name="colorSecondary">#88C0D0</item><item name="colorAccent">#88C0D0</item><item name="colorSurface">#3B4252</item><item name="colorOnSurface">#ECEFF4</item><item name="android:colorBackground">#2E3440</item><item name="android:textColor">#ECEFF4</item><item name="colorControlActivated">#88C0D0</item><item name="android:windowLightStatusBar">false</item>
+    </style>
+    <style name="AppTheme.Gruvbox" parent="AppTheme">
+        <item name="colorPrimary">#83A598</item><item name="colorPrimaryDark">#504945</item><item name="colorSecondary">#D79921</item><item name="colorAccent">#D79921</item><item name="colorSurface">#3C3836</item><item name="colorOnSurface">#EBDBB2</item><item name="android:colorBackground">#282828</item><item name="android:textColor">#EBDBB2</item><item name="colorControlActivated">#83A598</item><item name="android:windowLightStatusBar">false</item>
+    </style>
+    <style name="AppTheme.Dracula" parent="AppTheme">
+        <item name="colorPrimary">#BD93F9</item><item name="colorPrimaryDark">#8B65C7</item><item name="colorSecondary">#FF79C6</item><item name="colorAccent">#FF79C6</item><item name="colorSurface">#343746</item><item name="colorOnSurface">#F8F8F2</item><item name="android:colorBackground">#282A36</item><item name="android:textColor">#F8F8F2</item><item name="colorControlActivated">#BD93F9</item><item name="android:windowLightStatusBar">false</item>
+    </style>
+    <style name="AppTheme.Catppuccin" parent="AppTheme">
+        <item name="colorPrimary">#89B4FA</item><item name="colorPrimaryDark">#5A7FBF</item><item name="colorSecondary">#CBA6F7</item><item name="colorAccent">#CBA6F7</item><item name="colorSurface">#313244</item><item name="colorOnSurface">#CDD6F4</item><item name="android:colorBackground">#1E1E2E</item><item name="android:textColor">#CDD6F4</item><item name="colorControlActivated">#89B4FA</item><item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

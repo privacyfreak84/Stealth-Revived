@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="brand_color_scheme_labels">
+        <item>Tokyo Night</item><item>Nord</item><item>Gruvbox</item><item>Dracula</item><item>Catppuccin Mocha</item>
+    </string-array>
+    <string-array name="brand_navigation_layout_labels">
+        <item>Side menu</item><item>Classic bottom bar</item>
+    </string-array>
+</resources>

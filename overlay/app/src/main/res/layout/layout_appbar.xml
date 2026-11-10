@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:background="?attr/colorSurface">
+
+    <com.cosmos.unreddit.ui.common.widget.CardButton
+        android:id="@+id/menu_card"
+        android:layout_width="@dimen/app_bar_button_size"
+        android:layout_height="@dimen/app_bar_button_size"
+        android:layout_marginStart="@dimen/app_bar_margin"
+        android:onClick="openAppDrawer"
+        app:icon="@drawable/ic_menu"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        style="@style/CardButtonStyle" />
+
+    <com.cosmos.unreddit.ui.common.widget.AvatarView
+        android:id="@+id/profile_image"
+        android:layout_width="@dimen/profile_home_app_bar_size"
+        android:layout_height="@dimen/profile_home_app_bar_size"
+        android:layout_marginStart="8dp"
+        android:contentDescription="@null"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/menu_card"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="ST" />
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="@string/brand_app_name"
+        android:textAppearance="@style/TextAppearanceBrandAppBar"
+        android:fontFamily="@font/stealth_medium"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/sort_icon"
+        app:layout_constraintStart_toEndOf="@id/profile_image"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.cosmos.unreddit.ui.common.widget.CardButton
+        android:id="@+id/sort_card"
+        android:layout_width="@dimen/app_bar_button_size"
+        android:layout_height="@dimen/app_bar_button_size"
+        android:layout_marginEnd="@dimen/app_bar_margin"
+        app:icon="@drawable/ic_sort"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        style="@style/CardButtonStyle" />
+
+    <com.cosmos.unreddit.ui.common.widget.SortIconView
+        android:id="@+id/sort_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="@dimen/app_bar_margin"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/sort_card"
+        app:layout_constraintTop_toTopOf="parent"
+        app:sortType="general" />
+</androidx.constraintlayout.widget.ConstraintLayout>
