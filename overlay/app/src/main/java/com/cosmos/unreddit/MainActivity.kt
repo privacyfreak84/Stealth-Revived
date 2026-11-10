@@ -138,7 +138,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
             .setTitle(R.string.brand_color_scheme_title)
             .setSingleChoiceItems(
                 R.array.brand_color_scheme_labels,
-                viewModel.colorScheme.value.ordinal
+                unredditApplication.colorScheme.ordinal
             ) { dialog, index ->
                 val scheme = schemes.getOrNull(index) ?: return@setSingleChoiceItems
                 viewModel.setColorScheme(scheme)
