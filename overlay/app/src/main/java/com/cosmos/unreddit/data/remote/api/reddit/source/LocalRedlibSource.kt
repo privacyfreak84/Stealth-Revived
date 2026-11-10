@@ -4,10 +4,10 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * On-device Reddit frontend adapter backed by Stealth's native OAuth,
- * Retrofit, OkHttp and Moshi pipeline. It does not use a public instance.
+ * On-device Reddit adapter. It prefers the current Android GraphQL operations for search,
+ * subreddit feeds and comments, then falls back to Stealth's native JSON source.
  */
 @Singleton
 class LocalRedlibSource @Inject constructor(
-    private val redditSource: RedditSource
-) : BaseRedditSource by redditSource
+    private val graphQlRedditSource: GraphQlRedditSource
+) : BaseRedditSource by graphQlRedditSource

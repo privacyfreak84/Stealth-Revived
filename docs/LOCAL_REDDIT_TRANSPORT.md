@@ -1,42 +1,16 @@
 # Local Reddit transport
 
-## Goal and data flow
+The app fetches Reddit data directly. It does not depend on a public Redlib or Teddit instance.
 
-The app does not need a public Redlib or Teddit instance. Requests originate inside the Android app and go directly to Reddit.
+The local adapter now prefers Reddit's persisted Android GraphQL operations for the broken or unreliable paths:
+- Post, subreddit and people search use SearchPosts, SearchCommunities and SearchPeople.
+- Subreddit listings use SubredditFeedElements.
+- Post metadata uses /by_id/t3_<id>.json, while comments use the Android PostComments operation on gql-fed.reddit.com.
+- Comment continuation cursors are adapted to Stealth's existing MoreChild model, preserving the app's current load-more UI.
+- Transient network errors, HTTP 429 and HTTP 5xx responses get a bounded retry. The older JSON source remains a fallback for operation drift and other endpoints.
 
-"Local" describes the frontend and transport implementation, not offline storage of Reddit itself. Posts, comments and media are fetched over the network from Reddit and the relevant media hosts.
+Operation hashes are based on the public Android operation catalogue at https://github.com/Amqx/reddit-gql, checked 2026-11-10. Reddit's persisted operations are undocumented implementation details and can change without notice. The comment conversion is implemented in this project; Redlib PR https://github.com/redlib-org/redlib/pull/603 was used as a protocol reference. No Redlib Rust source is embedded.
 
-```text
-Screens/ViewModels -> CurrentSource -> LocalRedlibSource
-                                     -> RedditSource
-                                     -> Retrofit + Moshi
-                                     -> OkHttp interceptors
-                                     -> Reddit OAuth / JSON endpoints
-```
+The token flow uses Reddit's unofficial Android app-only OAuth endpoint and sends an installation identifier to Reddit. Reddit may change or revoke these endpoints, operation hashes or required headers. This remains account-free and read-only; it does not add login, voting, posting or messaging. Reddit, CDN and media hosts are still contacted. CI verifies compilation and local path tests, not live availability on every network.
 
-The first-party `LocalRedlibSource` adapter delegates to Stealth's native `RedditSource`. The existing source parses subreddit feeds and metadata, post details, comments, additional comment pages, user pages and search into Stealth's existing models.
-
-## Request handling
-
-The pinned Android baseline contains these mechanisms:
-
-- An app-only token manager obtains a token from Reddit's Android OAuth endpoint and caches it for the returned lifetime.
-- The OAuth interceptor attaches the bearer token and associated Android client headers. On HTTP 401 it invalidates the cached token, refreshes, and retries once.
-- The path interceptor encodes routes Reddit rejects literally for app-only requests: comment-thread routes, `/api/morechildren`, `/api/info` and multi-subreddit separators.
-- Moshi adapters decode the JSON into Stealth's existing models. The overlay adds regression tests for the URL rewrites.
-
-The overlay fixes the app's runtime source to this on-device Reddit path. Legacy saved preferences that selected Teddit or old.reddit scraping are interpreted as the local source, and the source-selection dialog no longer exposes instance choices.
-
-## Limitations and privacy
-
-- Reddit's app-only token endpoint and Android client identifier/headers are unofficial implementation details. They may change or be revoked, may be subject to Reddit's terms and policies, and are not guaranteed to remain available.
-- The token flow generates an installation identifier and sends it to Reddit as part of the request.
-- This is an account-free, read-only path. It does not add login, voting, posting or messaging.
-- Reddit/CDN and external media hosts are still contacted for content. This is not a network-isolated app.
-- Unit tests validate local path rewriting, not live Reddit availability. Live request behaviour still needs device/emulator testing.
-
-## Redlib and licensing
-
-Redlib's Rust server, templates and proxy are not embedded in the APK. Redlib is an architectural reference; the implementation here is native Kotlin using the Stealth-derived GPLv3 codebase. No Redlib source is copied.
-
-Redlib is AGPL-3.0-only. The selected Stealth Android baseline is GPLv3, with its original license text and notices retained. This project note is provenance information, not legal advice.
+The pinned Stealth Android codebase is GPLv3. Redlib is a separate AGPL-3.0-only project and is not copied into the APK.
