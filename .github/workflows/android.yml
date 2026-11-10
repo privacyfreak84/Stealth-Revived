@@ -12,6 +12,9 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
     steps:
       - name: Checkout revival and pinned source
         uses: actions/checkout@v4
@@ -26,11 +29,15 @@ jobs:
           cache: gradle
           cache-dependency-path: android/**/gradle-wrapper.properties
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Install Android platform
-        run: sdkmanager "platforms;android-33" "build-tools;33.0.2"
+        run: |
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | sort | tail -n 1)"
+          if [[ -z "$SDKMANAGER" ]]; then
+            echo "Android sdkmanager was not found under $ANDROID_HOME" >&2
+            exit 1
+          fi
+          yes | "$SDKMANAGER" --sdk_root="$ANDROID_HOME" --licenses
+          "$SDKMANAGER" --sdk_root="$ANDROID_HOME" "platforms;android-33" "build-tools;33.0.2"
 
       - name: Run unit tests and build debug APK
         run: ./scripts/build.sh testDebugUnitTest assembleDebug
