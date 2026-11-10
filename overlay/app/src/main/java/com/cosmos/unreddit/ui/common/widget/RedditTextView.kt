@@ -2,6 +2,7 @@ package com.cosmos.unreddit.ui.common.widget
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.drawable.Animatable
 import android.text.Spanned
 import android.text.SpannableStringBuilder
 import android.text.style.ImageSpan
@@ -56,6 +57,8 @@ class RedditTextView @JvmOverloads constructor(
                     val displayHeight = (intrinsicHeight.toFloat() * displayWidth / intrinsicWidth)
                         .toInt().coerceAtLeast(1)
                     drawable.setBounds(0, 0, displayWidth, displayHeight)
+                    drawable.callback = this@RedditTextView
+                    (drawable as? Animatable)?.start()
 
                     val updated = SpannableStringBuilder(text)
                     updated.removeSpan(placeholder)
