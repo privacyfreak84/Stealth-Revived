@@ -47,7 +47,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_user"
-            style="@style/Widget.Material3Expressive.Button.Tonal"
+            style="@style/Widget.Material3.Button.Tonal"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@{@string/reddit_user_prefixed(post.author)}"
@@ -57,7 +57,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_subreddit"
-            style="@style/Widget.Material3Expressive.Button.Tonal"
+            style="@style/Widget.Material3.Button.Tonal"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@{post.subreddit}"
@@ -67,7 +67,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_open"
-            style="@style/Widget.Material3Expressive.Button.Tonal"
+            style="@style/Widget.Material3.Button.Tonal"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/menu_open_link"
@@ -75,7 +75,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_share_link"
-            style="@style/Widget.Material3Expressive.Button.Tonal"
+            style="@style/Widget.Material3.Button.Tonal"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/menu_share_link"
@@ -83,7 +83,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_share_post"
-            style="@style/Widget.Material3Expressive.Button.Tonal"
+            style="@style/Widget.Material3.Button.Tonal"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/menu_share_post"
