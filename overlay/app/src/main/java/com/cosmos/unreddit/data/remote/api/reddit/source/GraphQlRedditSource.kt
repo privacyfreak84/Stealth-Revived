@@ -70,7 +70,7 @@ class GraphQlRedditSource @Inject constructor(
                 val connection = data.optJSONObject("postFeed")
                     ?.optJSONObject("elements")
                     ?: throw IOException("Reddit omitted the subreddit feed")
-                postListing(connection, unwrapPostInfo = true)
+                postListing(connection)
             }
         },
         backup = { fallback.getSubreddit(subreddit, sort, timeSorting, after) }
@@ -232,7 +232,7 @@ class GraphQlRedditSource @Inject constructor(
                     ?.optJSONObject("general")
                     ?.optJSONObject("posts")
                     ?: throw IOException("Reddit omitted post search results")
-                postListing(connection, unwrapPostInfo = false)
+                postListing(connection)
             }
         },
         backup = {
@@ -247,12 +247,12 @@ class GraphQlRedditSource @Inject constructor(
         }
     )
 
-    private fun postListing(connection: JSONObject, unwrapPostInfo: Boolean): Listing {
+    private fun postListing(connection: JSONObject): Listing {
         val edges = connection.optJSONArray("edges") ?: JSONArray()
         val children = JSONArray()
         for (index in 0 until edges.length()) {
             val node = edges.optJSONObject(index)?.optJSONObject("node") ?: continue
-            val post = if (unwrapPostInfo) node.optJSONObject("postInfo") ?: node else node
+            val post = node.optJSONObject("postInfo") ?: node
             if (post.has("id")) children.put(postChild(post))
         }
         return listing(children, pageCursor(connection))
