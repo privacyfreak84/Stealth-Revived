@@ -247,7 +247,6 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         else viewModel.setNavigationVisibility(false)
 
         applyNavigationLayout(viewModel.navigationLayout.value)
-        updateCheckedDestination(destination)
     }
 
     override fun onDestroy() {
