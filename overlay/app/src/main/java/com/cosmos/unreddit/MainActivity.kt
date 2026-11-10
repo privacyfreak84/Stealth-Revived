@@ -117,8 +117,12 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     }
 
     private fun applyNavigationLayout(layout: BrandingPreferences.NavigationLayout) {
+        val sideMenuEnabled = layout == BrandingPreferences.NavigationLayout.SIDE_MENU
         binding.bottomNavigation.visibility =
-            if (layout == BrandingPreferences.NavigationLayout.CLASSIC) View.VISIBLE else View.GONE
+            if (sideMenuEnabled) View.GONE else View.VISIBLE
+        currentNavigationFragment?.view
+            ?.findViewById<View>(R.id.menu_card)
+            ?.visibility = if (sideMenuEnabled) View.VISIBLE else View.GONE
         updateCheckedDestination(navController.currentDestination)
     }
 
@@ -242,6 +246,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         ) viewModel.setNavigationVisibility(true)
         else viewModel.setNavigationVisibility(false)
 
+        applyNavigationLayout(viewModel.navigationLayout.value)
         updateCheckedDestination(destination)
     }
 
