@@ -7,4 +7,6 @@
     <string name="brand_color_scheme_title">Color scheme</string>
     <string name="brand_navigation_layout_title">Navigation layout</string>
     <string name="brand_version_name">Revived edition</string>
+    <string name="brand_post_actions">Post actions</string>
+    <string name="brand_post_save">Save post</string>
 </resources>
