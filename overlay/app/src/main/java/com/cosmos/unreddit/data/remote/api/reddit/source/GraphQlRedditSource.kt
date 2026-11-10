@@ -25,7 +25,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
 import org.jsoup.Jsoup
-import org.jsoup.safety.Whitelist
+import org.jsoup.safety.Safelist
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -672,7 +672,7 @@ class GraphQlRedditSource @Inject constructor(
 
     private fun safeHtml(html: String, markdown: String): String {
         val fallback = "<p>" + escapeHtml(markdown).replace("\n\n", "</p><p>").replace("\n", "<br>") + "</p>"
-        return Jsoup.clean(html.takeIf { it.isNotBlank() } ?: fallback, Whitelist.basicWithImages())
+        return Jsoup.clean(html.takeIf { it.isNotBlank() } ?: fallback, Safelist.basicWithImages())
     }
 
     private fun parseJsonArray(value: String): JSONArray = try {
