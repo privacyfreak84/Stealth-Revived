@@ -158,7 +158,7 @@
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">true</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:windowBackground">?attr/colorSurface</item>
+        <item name="android:windowBackground">@color/profile_dialog_background</item>
         <item name="android:windowIsFloating">false</item>
         <item name="android:backgroundDimEnabled">true</item>
         <item name="android:windowIsTranslucent">true</item>
