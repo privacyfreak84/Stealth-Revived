@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
+    tools:context=".ui.postlist.PostListFragment">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:cardBackgroundColor="?attr/colorSurface"
+        app:cardCornerRadius="0dp"
+        app:cardElevation="0dp"
+        app:strokeWidth="0dp">
+
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?attr/colorSurface">
+
+            <com.google.android.material.appbar.AppBarLayout
+                android:id="@+id/app_bar_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/colorSurface"
+                app:elevation="0dp">
+
+                <include
+                    android:id="@+id/app_bar"
+                    layout="@layout/layout_appbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="96dp"
+                    app:layout_scrollFlags="scroll|enterAlways" />
+            </com.google.android.material.appbar.AppBarLayout>
+
+            <com.cosmos.unreddit.ui.common.widget.PullToRefreshLayout
+                android:id="@+id/pull_refresh"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+                <com.cosmos.unreddit.ui.common.widget.PostRecyclerView
+                    android:id="@+id/list_post"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    android:paddingStart="10dp"
+                    android:paddingTop="10dp"
+                    android:paddingEnd="10dp"
+                    android:paddingBottom="116dp"
+                    android:overScrollMode="never" />
+            </com.cosmos.unreddit.ui.common.widget.PullToRefreshLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <com.cosmos.unreddit.ui.common.widget.CradleView
+                    android:id="@+id/loading_cradle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                <com.cosmos.unreddit.ui.common.widget.InfoBarView
+                    android:id="@+id/info_retry"
+                    style="@style/InfoBarStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:visibility="gone"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:textMessage="@string/network_retry_message"
+                    app:textAction="@string/network_retry_action"
+                    tools:visibility="visible" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <FrameLayout
+        android:id="@+id/navigation_view"
+        android:layout_width="@dimen/profile_home_drawer_width"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="?attr/colorSurfaceContainerLow">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/list_profiles"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:overScrollMode="never"
+            android:padding="16dp" />
+    </FrameLayout>
+</androidx.drawerlayout.widget.DrawerLayout>

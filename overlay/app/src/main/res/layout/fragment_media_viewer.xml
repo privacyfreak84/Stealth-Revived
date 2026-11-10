@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:keepScreenOn="true">
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constrainedHeight="true" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/page_counter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="18dp"
+        android:visibility="invisible"
+        app:cardBackgroundColor="#CC151722"
+        app:cardCornerRadius="22dp"
+        app:cardElevation="0dp"
+        app:strokeWidth="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="9dp">
+
+            <TextView
+                android:id="@+id/text_page_current"
+                style="@style/Widget.TextView.MediaCounter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="1" />
+            <TextView
+                android:id="@+id/text_page_label"
+                style="@style/Widget.TextView.MediaCounter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="@string/media_page_counter_label" />
+            <TextView
+                android:id="@+id/text_page_count"
+                style="@style/Widget.TextView.MediaCounter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                tools:text="255" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/list_thumbnails"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/media_thumbnail_size"
+        android:layout_margin="14dp"
+        android:orientation="horizontal"
+        android:overScrollMode="never"
+        android:visibility="invisible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:visibility="visible" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/controls"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="18dp"
+        android:visibility="gone"
+        app:cardBackgroundColor="#CC151722"
+        app:cardCornerRadius="30dp"
+        app:cardElevation="0dp"
+        app:strokeWidth="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="4dp">
+
+            <ImageButton
+                android:id="@+id/button_download"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Download media"
+                app:tint="@android:color/white"
+                app:srcCompat="@drawable/ic_download" />
+
+            <com.cosmos.unreddit.ui.common.widget.CheckableImageView
+                android:id="@+id/button_mute"
+                android:layout_width="@dimen/exoplayer_small_button_size"
+                android:layout_height="@dimen/exoplayer_small_button_size"
+                android:layout_marginStart="8dp"
+                android:contentDescription="Mute media"
+                android:tint="@color/mute_color_selector"
+                android:visibility="gone"
+                app:srcCompat="@drawable/ic_mute"
+                tools:visibility="visible" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.cosmos.unreddit.ui.common.widget.InfoBarView
+        android:id="@+id/info_retry"
+        style="@style/InfoBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/page_counter"
+        app:textMessage="@string/network_retry_message"
+        app:textAction="@string/network_retry_action"
+        tools:visibility="visible" />
+
+    <com.cosmos.unreddit.ui.common.widget.CradleView
+        android:id="@+id/loading_cradle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:visibility="visible" />
+</androidx.constraintlayout.widget.ConstraintLayout>
