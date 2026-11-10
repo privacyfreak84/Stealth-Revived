@@ -20,7 +20,7 @@
     <style name="AppTheme.Nord" parent="AppTheme">
         <item name="colorPrimary">#48678E</item><item name="colorOnPrimary">#FFFFFF</item><item name="colorPrimaryInverse">#D8E3F2</item>
         <item name="colorPrimaryContainer">#D8E3F2</item><item name="colorOnPrimaryContainer">#172E47</item>
-        <item name="colorSecondary">#4D8797</item><item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorSecondary">#356F80</item><item name="colorOnSecondary">#FFFFFF</item>
         <item name="colorSecondaryContainer">#D5EAF0</item><item name="colorOnSecondaryContainer">#15363F</item>
         <item name="colorTertiary">#765386</item><item name="colorOnTertiary">#FFFFFF</item>
         <item name="colorTertiaryContainer">#F0DDF7</item><item name="colorOnTertiaryContainer">#382342</item>
