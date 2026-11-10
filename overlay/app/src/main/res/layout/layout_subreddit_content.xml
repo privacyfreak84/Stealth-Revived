@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="subreddit"
+            type="com.cosmos.unreddit.data.model.db.SubredditEntity" />
+    </data>
+
+    <androidx.constraintlayout.motion.widget.MotionLayout
+        android:id="@+id/layout_root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?attr/colorSurface"
+        app:layoutDescription="@xml/collapsing_toolbar">
+
+        <View
+            android:id="@+id/subreddit_metrics_header"
+            android:layout_width="match_parent"
+            android:layout_height="275dp"
+            android:background="@drawable/brand_profile_hero" />
+
+        <View
+            android:id="@+id/subreddit_header"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/subreddit_header_height"
+            android:background="@drawable/header_background" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/subreddit_image"
+            android:layout_width="@dimen/subreddit_image_size_expanded"
+            android:layout_height="@dimen/subreddit_image_size_expanded"
+            android:contentDescription="@null"
+            android:cropToPadding="true"
+            android:scaleType="centerCrop"
+            app:shapeAppearanceOverlay="@style/CircularImageViewStyle"
+            tools:src="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/subreddit_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@{subreddit.displayName}"
+            android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
+            android:textColor="?attr/colorOnPrimaryContainer"
+            tools:text="Community" />
+
+        <TextView
+            android:id="@+id/subreddit_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{subreddit.title}"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textColor="?attr/colorOnPrimaryContainer"
+            android:textAlignment="center"
+            app:layout_constrainedWidth="true"
+            tools:text="Community title" />
+
+        <com.cosmos.unreddit.ui.common.widget.CardButton
+            android:id="@+id/back_card"
+            android:layout_width="@dimen/app_bar_button_size"
+            android:layout_height="@dimen/app_bar_button_size"
+            android:layout_marginStart="12dp"
+            android:contentDescription="Back"
+            app:icon="@drawable/ic_arrow_back"
+            app:layout_constraintBottom_toBottomOf="@id/guideline_app_bar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            style="@style/CardButtonStyle" />
+
+        <com.cosmos.unreddit.ui.common.widget.CardButton
+            android:id="@+id/more_card"
+            android:layout_width="@dimen/app_bar_button_size"
+            android:layout_height="@dimen/app_bar_button_size"
+            android:layout_marginEnd="12dp"
+            android:contentDescription="More actions"
+            app:icon="@drawable/ic_more"
+            app:layout_constraintBottom_toBottomOf="@id/guideline_app_bar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            style="@style/CardButtonStyle" />
+
+        <com.cosmos.unreddit.ui.common.widget.CardButton
+            android:id="@+id/sort_card"
+            android:layout_width="@dimen/app_bar_button_size"
+            android:layout_height="@dimen/app_bar_button_size"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="@string/sort_title"
+            app:icon="@drawable/ic_sort"
+            app:layout_constraintBottom_toBottomOf="@id/guideline_app_bar"
+            app:layout_constraintEnd_toStartOf="@id/more_card"
+            app:layout_constraintTop_toTopOf="parent"
+            style="@style/CardButtonStyle" />
+
+        <com.cosmos.unreddit.ui.common.widget.SortIconView
+            android:id="@+id/sort_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="8dp"
+            app:layout_constraintBottom_toBottomOf="@id/guideline_app_bar"
+            app:layout_constraintEnd_toStartOf="@id/sort_card"
+            app:layout_constraintTop_toTopOf="parent"
+            app:sortType="general" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_app_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="?attr/actionBarSize" />
+
+        <com.cosmos.unreddit.ui.common.widget.PullToRefreshLayout
+            android:id="@+id/pull_refresh"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/subreddit_metrics_header">
+
+            <com.cosmos.unreddit.ui.common.widget.PostRecyclerView
+                android:id="@+id/list_post"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:overScrollMode="never"
+                android:paddingHorizontal="10dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="24dp" />
+        </com.cosmos.unreddit.ui.common.widget.PullToRefreshLayout>
+
+        <TextView
+            android:id="@+id/subreddit_subscribers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{subreddit.getSubscribersCount()}"
+            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+            android:textColor="?attr/colorOnPrimaryContainer"
+            tools:text="12.5m" />
+
+        <TextView
+            android:id="@+id/subreddit_subscribers_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/subreddit_subscribers"
+            android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
+            android:textColor="?attr/colorOnPrimaryContainer" />
+
+        <TextView
+            android:id="@+id/subreddit_active_users"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{subreddit.getActiveUsers()}"
+            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+            android:textColor="?attr/colorOnPrimaryContainer"
+            tools:text="14.6k" />
+
+        <TextView
+            android:id="@+id/subreddit_active_users_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/subreddit_active_users"
+            android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
+            android:textColor="?attr/colorOnPrimaryContainer" />
+
+        <include
+            android:id="@+id/loading_state"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/subreddit_metrics_header"
+            app:layout_constraintBottom_toBottomOf="parent"
+            layout="@layout/include_loading_state" />
+    </androidx.constraintlayout.motion.widget.MotionLayout>
+</layout>
