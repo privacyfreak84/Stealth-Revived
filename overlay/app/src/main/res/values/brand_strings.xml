@@ -9,4 +9,7 @@
     <string name="brand_version_name">Revived edition</string>
     <string name="brand_post_actions">Post actions</string>
     <string name="brand_post_save">Save post</string>
+    <string name="post_pinned">Pinned</string>
+    <string name="post_archived">Archived</string>
+    <string name="post_locked">Locked</string>
 </resources>
