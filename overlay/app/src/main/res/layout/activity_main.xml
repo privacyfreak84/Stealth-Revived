@@ -33,7 +33,6 @@
             android:layout_marginBottom="10dp"
             android:background="?attr/colorSurfaceContainerHigh"
             android:elevation="0dp"
-            app:itemActiveIndicatorEnabled="true"
             app:itemIconSize="24dp"
             app:itemIconTint="@color/navigation_color_selector"
             app:itemTextColor="@color/navigation_text_selector"
