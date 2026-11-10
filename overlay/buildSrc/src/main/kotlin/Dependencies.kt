@@ -2,9 +2,9 @@ object Dependencies {
     object Versions {
         const val kotlin = "2.3.21"
         const val androidGradlePlugin = "8.12.3"
-        const val hiltGradlePlugin = "2.60.1"
+        const val hiltGradlePlugin = "2.58"
 
-        const val hilt = "1.4.0"
+        const val hilt = "1.2.0"
 
         const val core = "1.16.0"
         const val appCompat = "1.7.0"

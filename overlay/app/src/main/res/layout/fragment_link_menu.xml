@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable name="link" type="String" />
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="26dp"
+        android:paddingBottom="24dp"
+        android:background="?attr/colorSurfaceContainerLow">
+
+        <TextView
+            android:id="@+id/text_link"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="middle"
+            android:maxLines="2"
+            android:text="@{link}"
+            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+            android:textColor="?attr/colorOnSurface"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="www.reddit.com" />
+
+        <androidx.constraintlayout.helper.widget.Flow
+            android:id="@+id/flow_action"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal"
+            app:constraint_referenced_ids="button_open,button_share_link,button_copy_link"
+            app:flow_horizontalGap="10dp"
+            app:flow_verticalGap="10dp"
+            app:flow_maxElementsWrap="2"
+            app:flow_wrapMode="aligned"
+            app:layout_constraintTop_toBottomOf="@id/text_link"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_open"
+            style="@style/Widget.Material3Expressive.Button.Tonal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/menu_open_link"
+            app:icon="@drawable/ic_open_in_browser" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_share_link"
+            style="@style/Widget.Material3Expressive.Button.Tonal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/menu_share_link"
+            app:icon="@drawable/ic_link" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_copy_link"
+            style="@style/Widget.Material3Expressive.Button.Tonal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/menu_copy_link"
+            app:icon="@drawable/ic_copy" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

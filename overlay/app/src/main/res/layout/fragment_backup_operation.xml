@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
+    android:padding="18dp">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/backup_card"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/backup_operation_card_height"
+        android:clickable="true"
+        android:focusable="true"
+        android:checkable="true"
+        app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+        app:cardCornerRadius="28dp"
+        app:cardElevation="0dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="?attr/colorOutlineVariant"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/restore_card"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_chainStyle="packed">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="22dp">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/backup_image"
+                android:layout_width="58dp"
+                android:layout_height="58dp"
+                android:background="?attr/colorPrimaryContainer"
+                android:padding="15dp"
+                android:tint="?attr/colorOnPrimaryContainer"
+                app:shapeAppearanceOverlay="@style/CircularImageViewStyle"
+                android:src="@drawable/ic_download" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_weight="1"
+                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                android:textColor="?attr/colorOnSurface"
+                android:text="@string/backup_operation_backup" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/restore_card"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/backup_operation_card_height"
+        android:clickable="true"
+        android:focusable="true"
+        android:checkable="true"
+        app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+        app:cardCornerRadius="28dp"
+        app:cardElevation="0dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="?attr/colorOutlineVariant"
+        app:layout_constraintTop_toBottomOf="@id/backup_card"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="22dp">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/restore_image"
+                android:layout_width="58dp"
+                android:layout_height="58dp"
+                android:background="?attr/colorSecondaryContainer"
+                android:padding="15dp"
+                android:tint="?attr/colorOnSecondaryContainer"
+                app:shapeAppearanceOverlay="@style/CircularImageViewStyle"
+                android:src="@drawable/ic_upload" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_weight="1"
+                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                android:textColor="?attr/colorOnSurface"
+                android:text="@string/backup_operation_restore" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <import type="android.view.View" />
+        <import type="com.cosmos.unreddit.ui.commentmenu.CommentMenuFragment.MenuType" />
+        <variable name="comment" type="com.cosmos.unreddit.data.model.Comment.CommentEntity" />
+        <variable name="type" type="com.cosmos.unreddit.ui.commentmenu.CommentMenuFragment.MenuType" />
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="26dp"
+        android:paddingBottom="24dp"
+        android:background="?attr/colorSurfaceContainerLow">
+
+        <TextView
+            android:id="@+id/text_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+            android:textColor="?attr/colorOnSurface"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="Comment actions" />
+
+        <androidx.constraintlayout.helper.widget.Flow
+            android:id="@+id/flow_action"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal"
+            app:constraint_referenced_ids="button_user,button_subreddit,button_save,button_open,button_share_link"
+            app:flow_horizontalGap="10dp"
+            app:flow_verticalGap="10dp"
+            app:flow_maxElementsWrap="2"
+            app:flow_wrapMode="aligned"
+            app:layout_constraintTop_toBottomOf="@id/text_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_user"
+            style="@style/Widget.Material3Expressive.Button.Tonal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{@string/reddit_user_prefixed(comment.author)}"
+            android:visibility="@{type != MenuType.USER ? View.VISIBLE : View.GONE}"
+            app:icon="@drawable/ic_profile"
+            tools:text="u/user" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_subreddit"
+            style="@style/Widget.Material3Expressive.Button.Tonal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{comment.subreddit}"
+            app:icon="@drawable/icon_reddit_placeholder"
+            tools:text="r/subreddit" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_save"
+            style="@style/Widget.Material3Expressive.Button.Tonal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/save"
+            app:icon="@drawable/ic_save_outline" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_open"
+            style="@style/Widget.Material3Expressive.Button.Tonal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/menu_open_link"
+            app:icon="@drawable/ic_open_in_browser" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_share_link"
+            style="@style/Widget.Material3Expressive.Button.Tonal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/menu_share_link"
+            app:icon="@drawable/ic_link" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
