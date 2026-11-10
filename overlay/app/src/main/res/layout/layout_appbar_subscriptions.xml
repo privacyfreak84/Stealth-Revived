@@ -55,7 +55,7 @@
         android:id="@+id/cancel_card"
         android:layout_width="52dp"
         android:layout_height="52dp"
-        android:contentDescription="@string/cancel"
+        android:contentDescription="@string/dialog_cancel"
         android:visibility="gone"
         app:icon="@drawable/ic_close"
         app:layout_constraintBottom_toBottomOf="parent"
