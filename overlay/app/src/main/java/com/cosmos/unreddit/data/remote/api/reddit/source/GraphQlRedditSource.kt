@@ -867,12 +867,6 @@ class GraphQlRedditSource @Inject constructor(
         }
     }
 
-    internal fun normalizedText(value: String?): String? =
-        value?.takeUnless {
-            it.isBlank() || it.trim().equals("null", ignoreCase = true) ||
-                it.trim().equals("undefined", ignoreCase = true)
-        }
-
     private fun safeHtml(html: String, markdown: String): String {
         val fallback = "<p>" + escapeHtml(markdown).replace("\n\n", "</p><p>").replace("\n", "<br>") + "</p>"
         return Jsoup.clean(html.takeIf { it.isNotBlank() } ?: fallback, Safelist.basicWithImages())
@@ -937,6 +931,12 @@ class GraphQlRedditSource @Inject constructor(
 
         internal fun sanitizeColor(value: String?): String? =
             value?.trim()?.takeIf { ANDROID_HEX_COLOR.matches(it) }
+    internal fun normalizedText(value: String?): String? =
+        value?.takeUnless {
+            it.isBlank() || it.trim().equals("null", ignoreCase = true) ||
+                it.trim().equals("undefined", ignoreCase = true)
+        }
+
         internal data class PostReference(val postId: String, val commentId: String?)
 
         internal fun parsePostReference(permalink: String): PostReference {
