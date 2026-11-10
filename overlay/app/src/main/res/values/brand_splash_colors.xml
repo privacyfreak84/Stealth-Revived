@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Theme.SplashScreen is intentionally independent of the activity's Material 3 theme. -->
+    <color name="brand_splash_background">#F5F7FF</color>
+</resources>
