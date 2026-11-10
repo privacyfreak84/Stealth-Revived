@@ -87,7 +87,9 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
 
     private fun initNavigation() {
         val host = supportFragmentManager.findFragmentById(R.id.fragment_container) as NavHostFragment
-        navController = host.navController.apply { addOnDestinationChangedListener(this@MainActivity) }
+        // Assign before registering: Navigation dispatches the current destination immediately.
+        navController = host.navController
+        navController.addOnDestinationChangedListener(this@MainActivity)
 
         binding.bottomNavigation.run {
             setupWithNavController(navController)
