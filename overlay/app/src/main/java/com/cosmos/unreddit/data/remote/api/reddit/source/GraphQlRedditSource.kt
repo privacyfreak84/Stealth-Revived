@@ -447,47 +447,77 @@ class GraphQlRedditSource @Inject constructor(
         val flair = node.optJSONObject("authorFlair") ?: JSONObject()
         val postInfo = node.optJSONObject("postInfo") ?: JSONObject()
         val subreddit = postInfo.optJSONObject("subreddit") ?: JSONObject()
-        val rawId = node.optString("id")
-        val deleted = node.optString("__typename") == "DeletedComment"
+        val rawId = jsonString(node, "id")
+        val type = jsonString(node, "__typename")
+        val deleted = type == "DeletedComment"
+        val removed = node.optBoolean("isRemoved", false)
+        val adminTakedown = node.optBoolean("isAdminTakedown", false)
         val id = rawId.removePrefix("t1_").ifBlank { "deleted_" + index }
         val fullname = "t1_" + id
         val prefix = firstNonEmpty(
-            subreddit.optString("prefixedName"),
-            subreddit.optString("name").takeIf { it.isNotBlank() }?.let { "r/" + it }.orEmpty(),
-            subredditFromPermalink(node.optString("permalink")).let { if (it.isBlank()) "" else "r/" + it }
+            jsonString(subreddit, "prefixedName"),
+            jsonString(subreddit, "name").takeIf { it.isNotBlank() }?.let { "r/" + it }.orEmpty(),
+            subredditFromPermalink(jsonString(node, "permalink")).let {
+                if (it.isBlank()) "" else "r/" + it
+            }
         )
-        val markdown = firstNonEmpty(
-            content.optString("markdown"), content.optString("preview"),
-            if (deleted) "[deleted]" else ""
-        )
-        val bodyHtml = "<div class=\"md\">" + safeHtml(content.optString("html"), markdown) + "</div>"
-        val edited = epochSeconds(node.optString("editedAt"))
+
+        // Reddit's GraphQL response carries the rendered body as RTJSON in content.richtext.
+        // The "html" property used by the old adapter is not part of this payload.
+        val markdown = jsonString(content, "markdown")
+        val richText = parseRichText(content.opt("richtext"))
+        val richDocument = richText?.optJSONArray("document")
+        val renderedRichText = richDocument
+            ?.takeIf { it.length() > 0 }
+            ?.let { renderRichText(it, content.optJSONArray("richtextMedia") ?: JSONArray()) }
+        val bodyHtml = when {
+            deleted -> "<div class=\"md\"><p>[deleted]</p></div>"
+            adminTakedown -> "<div class=\"md\"><p>[ Removed by Reddit ]</p></div>"
+            removed -> "<div class=\"md\"><p>[removed]</p></div>"
+            else -> "<div class=\"md\">" +
+                safeHtml(renderedRichText ?: jsonString(content, "html"), markdown) +
+                "</div>"
+        }
+
+        val edited = epochSeconds(jsonString(node, "editedAt"))
         val data = JSONObject()
             .put("total_awards_received", 0)
-            .put("author_flair_richtext", parseJsonArray(flair.optString("richtext")))
+            .put("author_flair_richtext", parseJsonArray(jsonString(flair, "richtext")))
             .put("link_id", postFullname)
             .put("replies", JSONObject().put("kind", "Listing")
                 .put("data", JSONObject().put("children", JSONArray())))
-            .put("author", if (deleted) "[deleted]" else firstNonEmpty(author.optString("name"), author.optString("displayName"), "[deleted]"))
+            .put("author", if (deleted || removed) "[deleted]" else firstNonEmpty(
+                jsonString(author, "name"),
+                jsonString(author, "displayName"),
+                "[unknown]"
+            ))
             .put("score", node.optInt("score", 0))
             .put("all_awardings", JSONArray())
+            .put("body", when {
+                deleted -> "[deleted]"
+                adminTakedown -> "[ Removed by Reddit ]"
+                removed -> "[removed]"
+                else -> markdown
+            })
             .put("body_html", bodyHtml)
             .put("edited", if (edited > 0L) edited else false)
             .put("is_submitter", node.optBoolean("isOP", false))
             .put("stickied", node.optBoolean("isStickied", false))
             .put("score_hidden", node.optBoolean("isScoreHidden", false))
-            .put("permalink", node.optString("permalink"))
+            .put("permalink", jsonString(node, "permalink"))
             .put("id", id)
             .put("name", fullname)
-            .put("created_utc", epochSeconds(node.optString("createdAt")))
+            .put("created_utc", epochSeconds(jsonString(node, "createdAt")))
             .put("controversiality", 0)
-            .put("author_flair_text", nullableString(flair.optString("text")))
+            .put("author_flair_text", nullableString(jsonString(flair, "text")))
             .put("depth", depth)
-            .put("distinguished", nullableString(node.optString("distinguishedAs").lowercase(Locale.US)))
+            .put("distinguished", nullableString(jsonString(node, "distinguishedAs").lowercase(Locale.US)))
             .put("subreddit_name_prefixed", prefix)
-            .put("link_title", nullableString(postInfo.optString("title")))
-            .put("link_permalink", nullableString(postInfo.optString("permalink")))
-            .put("link_author", nullableString(postInfo.optJSONObject("authorInfo")?.optString("name").orEmpty()))
+            .put("link_title", nullableString(jsonString(postInfo, "title")))
+            .put("link_permalink", nullableString(jsonString(postInfo, "permalink")))
+            .put("link_author", nullableString(jsonString(
+                postInfo.optJSONObject("authorInfo") ?: JSONObject(), "name"
+            )))
         return JSONObject().put("kind", "t1").put("data", data)
     }
 
@@ -669,6 +699,179 @@ class GraphQlRedditSource @Inject constructor(
         Sort.QA -> "QA"
         else -> "CONFIDENCE"
     }
+
+    private fun jsonString(json: JSONObject, key: String): String =
+        normalizedText(json.opt(key) as? String).orEmpty()
+
+    private fun parseRichText(value: Any?): JSONObject? = when (value) {
+        is JSONObject -> value
+        is String -> try {
+            JSONObject(value)
+        } catch (_: Exception) {
+            null
+        }
+        else -> null
+    }
+
+    private fun renderRichText(nodes: JSONArray, media: JSONArray): String {
+        val output = StringBuilder()
+        for (index in 0 until nodes.length()) {
+            val node = nodes.optJSONObject(index) ?: continue
+            output.append(renderRichTextNode(node, media))
+        }
+        return output.toString()
+    }
+
+    private fun renderRichTextNode(node: JSONObject, media: JSONArray): String {
+        val type = jsonString(node, "e")
+        val children = node.optJSONArray("c")
+        val childHtml = children?.let { renderRichText(it, media) }.orEmpty()
+        return when (type) {
+            "par" -> "<p>" + childHtml + "</p>"
+            "text" -> formattedRichText(node)
+            "br" -> "<br>"
+            "hr" -> "<hr>"
+            "h" -> {
+                val level = node.optInt("l", 1).coerceIn(1, 6)
+                "<h" + level + ">" + childHtml + "</h" + level + ">"
+            }
+            "blockquote" -> "<blockquote>" + childHtml + "</blockquote>"
+            "list" -> {
+                val tag = if (node.optBoolean("o", false)) "ol" else "ul"
+                "<" + tag + ">" + childHtml + "</" + tag + ">"
+            }
+            "li" -> "<li>" + childHtml + "</li>"
+            "code" -> {
+                val lines = mutableListOf<String>()
+                val codeLines = children ?: JSONArray()
+                for (index in 0 until codeLines.length()) {
+                    val line = codeLines.optJSONObject(index) ?: continue
+                    lines.add(jsonString(line, "t"))
+                }
+                "<pre><code>" + escapeHtml(lines.joinToString("\n")) + "</code></pre>"
+            }
+            "spoilertext" -> "<span>" + childHtml + "</span>"
+            "link" -> {
+                val url = safeWebUrl(jsonString(node, "u"))
+                val title = normalizedText(jsonString(node, "a"))?.let {
+                    " title=\"" + escapeHtml(it) + "\""
+                }.orEmpty()
+                if (url == null) formattedRichText(node)
+                else "<a href=\"" + escapeHtml(url) + "\"" + title + ">" +
+                    formattedRichText(node) + "</a>"
+            }
+            "r/", "u/" -> {
+                val name = jsonString(node, "t")
+                if (name.isBlank()) "" else {
+                    val slash = if (node.optBoolean("l", false)) "/" else ""
+                    "<a href=\"/" + type + escapeHtml(name) + "\">" +
+                        slash + type + escapeHtml(name) + "</a>"
+                }
+            }
+            "img", "gif" -> {
+                val id = jsonString(node, "id")
+                var imageUrl: String? = null
+                for (index in 0 until media.length()) {
+                    val item = media.optJSONObject(index) ?: continue
+                    if (jsonString(item, "id") == id) {
+                        imageUrl = safeWebUrl(jsonString(item, "url"))
+                        break
+                    }
+                }
+                if (imageUrl == null) "" else {
+                    val safeUrl = escapeHtml(imageUrl)
+                    "<a href=\"" + safeUrl + "\"><img src=\"" + safeUrl +
+                        "\" alt=\"comment image\"></a>"
+                }
+            }
+            "table" -> renderRichTextTable(node, media)
+            else -> if (children != null) childHtml else escapeHtml(jsonString(node, "t"))
+        }
+    }
+
+    private fun renderRichTextTable(node: JSONObject, media: JSONArray): String {
+        val headers = node.optJSONArray("h") ?: JSONArray()
+        val rows = node.optJSONArray("c") ?: JSONArray()
+        val output = StringBuilder("<table><thead><tr>")
+        for (index in 0 until headers.length()) {
+            val header = headers.optJSONObject(index) ?: JSONObject()
+            output.append("<th>")
+                .append(renderRichText(header.optJSONArray("c") ?: JSONArray(), media))
+                .append("</th>")
+        }
+        output.append("</tr></thead><tbody>")
+        for (rowIndex in 0 until rows.length()) {
+            val row = rows.optJSONArray(rowIndex) ?: continue
+            output.append("<tr>")
+            for (columnIndex in 0 until row.length()) {
+                val cell = row.optJSONObject(columnIndex) ?: JSONObject()
+                output.append("<td>")
+                    .append(renderRichText(cell.optJSONArray("c") ?: JSONArray(), media))
+                    .append("</td>")
+            }
+            output.append("</tr>")
+        }
+        return output.append("</tbody></table>").toString()
+    }
+
+    private fun formattedRichText(node: JSONObject): String {
+        val text = jsonString(node, "t")
+        if (text.isEmpty()) return ""
+        val codePoints = text.codePoints().toArray()
+        val formats = IntArray(codePoints.size)
+        val ranges = node.optJSONArray("f") ?: JSONArray()
+        for (rangeIndex in 0 until ranges.length()) {
+            val range = ranges.optJSONArray(rangeIndex) ?: continue
+            if (range.length() < 3) continue
+            val format = range.optInt(0, 0)
+            val start = range.optInt(1, -1)
+            val length = range.optInt(2, 0)
+            if (start < 0 || length <= 0 || start >= formats.size) continue
+            val end = (start.toLong() + length.toLong())
+                .coerceAtMost(formats.size.toLong()).toInt()
+            for (index in start until end) formats[index] = formats[index] or format
+        }
+
+        val tags = listOf(
+            1 to "strong",
+            2 to "em",
+            8 to "del",
+            16 to "sub",
+            32 to "sup",
+            64 to "code"
+        )
+        val output = StringBuilder()
+        var index = 0
+        while (index < codePoints.size) {
+            val mask = formats[index]
+            var end = index + 1
+            while (end < codePoints.size && formats[end] == mask) end++
+            val activeTags = tags.filter { (bit, _) -> mask and bit != 0 }
+            for ((_, tag) in activeTags) output.append("<").append(tag).append(">")
+            val segment = StringBuilder()
+            for (charIndex in index until end) {
+                segment.appendCodePoint(codePoints[charIndex])
+            }
+            output.append(escapeHtml(segment.toString()))
+            for ((_, tag) in activeTags.asReversed()) output.append("</").append(tag).append(">")
+            index = end
+        }
+        return output.toString()
+    }
+
+    private fun safeWebUrl(value: String): String? {
+        val trimmed = value.trim()
+        return trimmed.takeIf {
+            it.startsWith("https://", ignoreCase = true) ||
+                it.startsWith("http://", ignoreCase = true)
+        }
+    }
+
+    internal fun normalizedText(value: String?): String? =
+        value?.takeUnless {
+            it.isBlank() || it.trim().equals("null", ignoreCase = true) ||
+                it.trim().equals("undefined", ignoreCase = true)
+        }
 
     private fun safeHtml(html: String, markdown: String): String {
         val fallback = "<p>" + escapeHtml(markdown).replace("\n\n", "</p><p>").replace("\n", "<br>") + "</p>"
