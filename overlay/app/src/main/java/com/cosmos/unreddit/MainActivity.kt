@@ -120,6 +120,9 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         val sideMenuEnabled = layout == BrandingPreferences.NavigationLayout.SIDE_MENU
         binding.bottomNavigation.visibility =
             if (sideMenuEnabled) View.GONE else View.VISIBLE
+        if (!sideMenuEnabled) {
+            showNavigation(viewModel.navigationVisibility.value, false)
+        }
         binding.appDrawer.setDrawerLockMode(
             if (sideMenuEnabled) androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_UNLOCKED
             else androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
