@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
-    android:background="?attr/colorSurface">
+    android:background="?attr/colorSurface"
+    android:paddingStart="4dp"
+    android:paddingEnd="4dp">
 
     <com.cosmos.unreddit.ui.common.widget.CardButton
         android:id="@+id/menu_card"
-        android:layout_width="@dimen/app_bar_button_size"
-        android:layout_height="@dimen/app_bar_button_size"
-        android:layout_marginStart="@dimen/app_bar_margin"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="8dp"
+        android:contentDescription="@string/menu_sidebar"
         android:onClick="openAppDrawer"
         app:icon="@drawable/ic_menu"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -33,12 +37,13 @@
         android:id="@+id/title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="10dp"
         android:ellipsize="end"
         android:maxLines="1"
         android:text="@string/brand_app_name"
         android:textAppearance="@style/TextAppearanceBrandAppBar"
         android:fontFamily="@font/stealth_medium"
+        android:textColor="?attr/colorOnSurface"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/sort_icon"
         app:layout_constraintStart_toEndOf="@id/profile_image"
@@ -46,9 +51,10 @@
 
     <com.cosmos.unreddit.ui.common.widget.CardButton
         android:id="@+id/sort_card"
-        android:layout_width="@dimen/app_bar_button_size"
-        android:layout_height="@dimen/app_bar_button_size"
-        android:layout_marginEnd="@dimen/app_bar_margin"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="@string/sort_title"
         app:icon="@drawable/ic_sort"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -59,7 +65,7 @@
         android:id="@+id/sort_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="@dimen/app_bar_margin"
+        android:paddingHorizontal="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/sort_card"
         app:layout_constraintTop_toTopOf="parent"

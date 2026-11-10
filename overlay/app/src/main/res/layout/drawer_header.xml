@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="176dp"
-    android:background="?attr/colorSurface"
-    android:gravity="bottom"
+    android:layout_height="152dp"
+    android:background="?attr/colorPrimaryContainer"
+    android:gravity="bottom|start"
     android:orientation="horizontal"
-    android:paddingStart="22dp"
-    android:paddingTop="28dp"
+    android:paddingStart="20dp"
+    android:paddingTop="24dp"
     android:paddingEnd="20dp"
-    android:paddingBottom="22dp">
+    android:paddingBottom="20dp">
 
     <ImageView
-        android:layout_width="52dp"
-        android:layout_height="52dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_gravity="center_vertical"
-        android:contentDescription="@string/brand_app_name"
+        android:contentDescription="@null"
+        android:importantForAccessibility="no"
         android:src="@drawable/ic_stealth_brand" />
 
     <LinearLayout
@@ -29,16 +31,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/brand_app_name"
-            android:textColor="?android:attr/textColorPrimary"
-            android:textSize="21sp"
-            android:textStyle="bold" />
+            android:textColor="?attr/colorOnPrimaryContainer"
+            android:textSize="20sp"
+            android:fontFamily="@font/stealth_medium" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="3dp"
+            android:layout_marginTop="4dp"
             android:text="@string/brand_tagline"
-            android:textColor="?android:attr/textColorSecondary"
+            android:textColor="?attr/colorOnPrimaryContainer"
+            android:alpha="0.88"
             android:textSize="13sp" />
     </LinearLayout>
 </LinearLayout>

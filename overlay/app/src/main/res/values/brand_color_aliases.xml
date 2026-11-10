@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Preserve upstream camelCase IDs while resolving through lowercase theme-aware selectors. -->
+    <item type="color" name="colorPrimary">@color/brand_primary</item>
+    <item type="color" name="colorPrimaryDark">@color/brand_primary_dark</item>
+    <item type="color" name="colorPrimaryLight">@color/brand_primary_light</item>
+    <item type="color" name="colorSecondary">@color/brand_secondary</item>
+    <item type="color" name="colorSecondaryDark">@color/brand_secondary_dark</item>
+    <item type="color" name="colorSecondaryLight">@color/brand_secondary_light</item>
+    <item type="color" name="colorAccent">@color/brand_secondary</item>
+</resources>

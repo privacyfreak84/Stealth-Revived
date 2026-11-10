@@ -1,21 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="TextAppearanceBrandAppBar" parent="TextAppearanceAppBarLabel">
-        <item name="android:textSize">18sp</item><item name="android:textAllCaps">false</item><item name="android:letterSpacing">0</item>
-    </style>
     <style name="AppTheme.TokyoNight" parent="AppTheme">
-        <item name="colorPrimary">#34548A</item><item name="colorPrimaryDark">#26365F</item><item name="colorSecondary">#8056B3</item><item name="colorAccent">#8056B3</item><item name="colorSurface">#F5F7FF</item><item name="colorOnSurface">#27324C</item><item name="android:colorBackground">#F5F7FF</item><item name="android:textColor">#27324C</item><item name="colorControlActivated">#34548A</item>
+        <item name="colorPrimary">#34548A</item><item name="colorOnPrimary">#FFFFFF</item><item name="colorPrimaryInverse">#DCE5FA</item>
+        <item name="colorPrimaryContainer">#DCE5FA</item><item name="colorOnPrimaryContainer">#192B4E</item>
+        <item name="colorSecondary">#8056B3</item><item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorSecondaryContainer">#ECDDFF</item><item name="colorOnSecondaryContainer">#2A1748</item>
+        <item name="colorTertiary">#1B6E7B</item><item name="colorOnTertiary">#FFFFFF</item>
+        <item name="colorTertiaryContainer">#B9EAF0</item><item name="colorOnTertiaryContainer">#07363D</item>
+        <item name="colorError">#BA1B1B</item><item name="colorOnError">#FFFFFF</item>
+        <item name="colorErrorContainer">#F9DEDC</item><item name="colorOnErrorContainer">#410E0B</item>
+        <item name="android:colorBackground">#F5F7FF</item><item name="colorOnBackground">#27324C</item>
+        <item name="colorSurface">#F5F7FF</item><item name="colorOnSurface">#27324C</item>
+        <item name="colorSurfaceVariant">#E8ECF5</item><item name="colorOnSurfaceVariant">#4E5A73</item>
+        <item name="colorSurfaceInverse">#2D3345</item><item name="colorOnSurfaceInverse">#F5F7FF</item>
+        <item name="colorOutline">#737F99</item>
+        <item name="colorPrimaryDark">#26365F</item><item name="colorAccent">#8056B3</item><item name="colorControlActivated">#34548A</item>
+        <item name="android:textColor">#27324C</item><item name="android:windowLightStatusBar">true</item>
     </style>
     <style name="AppTheme.Nord" parent="AppTheme">
-        <item name="colorPrimary">#5E81AC</item><item name="colorPrimaryDark">#3B536F</item><item name="colorSecondary">#88C0D0</item><item name="colorAccent">#88C0D0</item><item name="colorSurface">#ECEFF4</item><item name="colorOnSurface">#2E3440</item><item name="android:colorBackground">#ECEFF4</item><item name="android:textColor">#2E3440</item><item name="colorControlActivated">#5E81AC</item>
+        <item name="colorPrimary">#48678E</item><item name="colorOnPrimary">#FFFFFF</item><item name="colorPrimaryInverse">#D8E3F2</item>
+        <item name="colorPrimaryContainer">#D8E3F2</item><item name="colorOnPrimaryContainer">#172E47</item>
+        <item name="colorSecondary">#356F80</item><item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorSecondaryContainer">#D5EAF0</item><item name="colorOnSecondaryContainer">#15363F</item>
+        <item name="colorTertiary">#765386</item><item name="colorOnTertiary">#FFFFFF</item>
+        <item name="colorTertiaryContainer">#F0DDF7</item><item name="colorOnTertiaryContainer">#382342</item>
+        <item name="colorError">#BA1B1B</item><item name="colorOnError">#FFFFFF</item>
+        <item name="colorErrorContainer">#F9DEDC</item><item name="colorOnErrorContainer">#410E0B</item>
+        <item name="android:colorBackground">#ECEFF4</item><item name="colorOnBackground">#2E3440</item>
+        <item name="colorSurface">#ECEFF4</item><item name="colorOnSurface">#2E3440</item>
+        <item name="colorSurfaceVariant">#E1E6ED</item><item name="colorOnSurfaceVariant">#4C566A</item>
+        <item name="colorSurfaceInverse">#3B4252</item><item name="colorOnSurfaceInverse">#ECEFF4</item>
+        <item name="colorOutline">#6E7B91</item>
+        <item name="colorPrimaryDark">#3B536F</item><item name="colorAccent">#88C0D0</item><item name="colorControlActivated">#48678E</item>
+        <item name="android:textColor">#2E3440</item><item name="android:windowLightStatusBar">true</item>
     </style>
     <style name="AppTheme.Gruvbox" parent="AppTheme">
-        <item name="colorPrimary">#076678</item><item name="colorPrimaryDark">#054C59</item><item name="colorSecondary">#AF3A03</item><item name="colorAccent">#AF3A03</item><item name="colorSurface">#FBF1C7</item><item name="colorOnSurface">#3C3836</item><item name="android:colorBackground">#FBF1C7</item><item name="android:textColor">#3C3836</item><item name="colorControlActivated">#076678</item>
+        <item name="colorPrimary">#076678</item><item name="colorOnPrimary">#FFFFFF</item><item name="colorPrimaryInverse">#CDE9E7</item>
+        <item name="colorPrimaryContainer">#CDE9E7</item><item name="colorOnPrimaryContainer">#07383E</item>
+        <item name="colorSecondary">#AF3A03</item><item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorSecondaryContainer">#F8DCCB</item><item name="colorOnSecondaryContainer">#4A1C05</item>
+        <item name="colorTertiary">#686309</item><item name="colorOnTertiary">#FFFFFF</item>
+        <item name="colorTertiaryContainer">#EAE6B8</item><item name="colorOnTertiaryContainer">#302E05</item>
+        <item name="colorError">#BA1B1B</item><item name="colorOnError">#FFFFFF</item>
+        <item name="colorErrorContainer">#F9DEDC</item><item name="colorOnErrorContainer">#410E0B</item>
+        <item name="android:colorBackground">#FBF1C7</item><item name="colorOnBackground">#3C3836</item>
+        <item name="colorSurface">#FBF1C7</item><item name="colorOnSurface">#3C3836</item>
+        <item name="colorSurfaceVariant">#EBDBB2</item><item name="colorOnSurfaceVariant">#504945</item>
+        <item name="colorSurfaceInverse">#3C3836</item><item name="colorOnSurfaceInverse">#FBF1C7</item>
+        <item name="colorOutline">#82766A</item>
+        <item name="colorPrimaryDark">#054C59</item><item name="colorAccent">#AF3A03</item><item name="colorControlActivated">#076678</item>
+        <item name="android:textColor">#3C3836</item><item name="android:windowLightStatusBar">true</item>
     </style>
     <style name="AppTheme.Dracula" parent="AppTheme">
-        <item name="colorPrimary">#6C4AB6</item><item name="colorPrimaryDark">#4C3188</item><item name="colorSecondary">#B03070</item><item name="colorAccent">#B03070</item><item name="colorSurface">#F8F8F2</item><item name="colorOnSurface">#282A36</item><item name="android:colorBackground">#F8F8F2</item><item name="android:textColor">#282A36</item><item name="colorControlActivated">#6C4AB6</item>
+        <item name="colorPrimary">#6C4AB6</item><item name="colorOnPrimary">#FFFFFF</item><item name="colorPrimaryInverse">#E6DDFF</item>
+        <item name="colorPrimaryContainer">#E6DDFF</item><item name="colorOnPrimaryContainer">#2C1557</item>
+        <item name="colorSecondary">#B03070</item><item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorSecondaryContainer">#FFD9E8</item><item name="colorOnSecondaryContainer">#4A1230</item>
+        <item name="colorTertiary">#1B6B64</item><item name="colorOnTertiary">#FFFFFF</item>
+        <item name="colorTertiaryContainer">#B9EDE6</item><item name="colorOnTertiaryContainer">#073B36</item>
+        <item name="colorError">#BA1B1B</item><item name="colorOnError">#FFFFFF</item>
+        <item name="colorErrorContainer">#F9DEDC</item><item name="colorOnErrorContainer">#410E0B</item>
+        <item name="android:colorBackground">#F8F8F2</item><item name="colorOnBackground">#282A36</item>
+        <item name="colorSurface">#F8F8F2</item><item name="colorOnSurface">#282A36</item>
+        <item name="colorSurfaceVariant">#ECECE4</item><item name="colorOnSurfaceVariant">#4B4D5A</item>
+        <item name="colorSurfaceInverse">#343746</item><item name="colorOnSurfaceInverse">#F8F8F2</item>
+        <item name="colorOutline">#777987</item>
+        <item name="colorPrimaryDark">#4C3188</item><item name="colorAccent">#B03070</item><item name="colorControlActivated">#6C4AB6</item>
+        <item name="android:textColor">#282A36</item><item name="android:windowLightStatusBar">true</item>
     </style>
     <style name="AppTheme.Catppuccin" parent="AppTheme">
-        <item name="colorPrimary">#1E66F5</item><item name="colorPrimaryDark">#174EA6</item><item name="colorSecondary">#8839EF</item><item name="colorAccent">#8839EF</item><item name="colorSurface">#EFF1F5</item><item name="colorOnSurface">#4C4F69</item><item name="android:colorBackground">#EFF1F5</item><item name="android:textColor">#4C4F69</item><item name="colorControlActivated">#1E66F5</item>
+        <item name="colorPrimary">#1B5BD0</item><item name="colorOnPrimary">#FFFFFF</item><item name="colorPrimaryInverse">#DCE5FF</item>
+        <item name="colorPrimaryContainer">#DCE5FF</item><item name="colorOnPrimaryContainer">#102E68</item>
+        <item name="colorSecondary">#8839EF</item><item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorSecondaryContainer">#EEDFFF</item><item name="colorOnSecondaryContainer">#35105F</item>
+        <item name="colorTertiary">#106D73</item><item name="colorOnTertiary">#FFFFFF</item>
+        <item name="colorTertiaryContainer">#B5ECEB</item><item name="colorOnTertiaryContainer">#063D40</item>
+        <item name="colorError">#BA1B1B</item><item name="colorOnError">#FFFFFF</item>
+        <item name="colorErrorContainer">#F9DEDC</item><item name="colorOnErrorContainer">#410E0B</item>
+        <item name="android:colorBackground">#EFF1F5</item><item name="colorOnBackground">#4C4F69</item>
+        <item name="colorSurface">#EFF1F5</item><item name="colorOnSurface">#4C4F69</item>
+        <item name="colorSurfaceVariant">#E6E9EF</item><item name="colorOnSurfaceVariant">#5C6078</item>
+        <item name="colorSurfaceInverse">#313244</item><item name="colorOnSurfaceInverse">#EFF1F5</item>
+        <item name="colorOutline">#6A718B</item>
+        <item name="colorPrimaryDark">#174EA6</item><item name="colorAccent">#8839EF</item><item name="colorControlActivated">#1B5BD0</item>
+        <item name="android:textColor">#4C4F69</item><item name="android:windowLightStatusBar">true</item>
     </style>
 </resources>
