@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
-    android:background="?attr/colorSurface">
+    android:background="?attr/colorSurface"
+    android:paddingStart="4dp"
+    android:paddingEnd="4dp">
 
     <com.cosmos.unreddit.ui.common.widget.CardButton
         android:id="@+id/menu_card"
-        android:layout_width="@dimen/app_bar_button_size"
-        android:layout_height="@dimen/app_bar_button_size"
-        android:layout_marginStart="@dimen/app_bar_margin"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="8dp"
+        android:contentDescription="@string/menu_sidebar"
         android:onClick="openAppDrawer"
         app:icon="@drawable/ic_menu"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -24,6 +28,7 @@
         android:layout_marginStart="12dp"
         android:text="@string/fragment_subscriptions_label"
         android:textAppearance="@style/TextAppearanceBrandAppBar"
+        android:textColor="?attr/colorOnSurface"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/menu_card"
         app:layout_constraintTop_toTopOf="parent" />
@@ -33,7 +38,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_marginStart="12dp"
-        android:layout_marginEnd="@dimen/app_bar_margin"
+        android:layout_marginEnd="4dp"
         android:backgroundTint="@android:color/transparent"
         android:hint="@string/subscriptions_search_hint"
         android:imeOptions="actionSearch|flagNoPersonalizedLearning"
@@ -46,9 +51,10 @@
 
     <com.cosmos.unreddit.ui.common.widget.CardButton
         android:id="@+id/search_card"
-        android:layout_width="@dimen/app_bar_button_size"
-        android:layout_height="@dimen/app_bar_button_size"
-        android:layout_marginEnd="@dimen/app_bar_margin"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="@string/menu_search"
         app:icon="@drawable/ic_search"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -57,9 +63,10 @@
 
     <com.cosmos.unreddit.ui.common.widget.CardButton
         android:id="@+id/cancel_card"
-        android:layout_width="@dimen/app_bar_button_size"
-        android:layout_height="@dimen/app_bar_button_size"
-        android:layout_marginEnd="@dimen/app_bar_margin"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="@string/dialog_cancel"
         android:visibility="gone"
         app:icon="@drawable/ic_close"
         app:layout_constraintBottom_toBottomOf="parent"
