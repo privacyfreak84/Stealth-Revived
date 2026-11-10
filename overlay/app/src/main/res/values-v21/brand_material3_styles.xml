@@ -7,7 +7,7 @@
         <item name="postSplashScreenTheme">@style/AppTheme</item>
     </style>
 
-    <style name="BaseTheme" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="BaseTheme" parent="Theme.Material3Expressive.DayNight.NoActionBar">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
@@ -16,6 +16,10 @@
         <item name="switchStyle">@style/SwitchStyle</item>
         <item name="materialSwitchStyle">@style/Widget.Material3.CompoundButton.MaterialSwitch</item>
         <item name="materialCardViewStyle">@style/Widget.Material3.CardView.Filled</item>
+        <item name="materialButtonStyle">@style/Widget.Material3Expressive.Button</item>
+        <item name="floatingActionButtonStyle">@style/Widget.Material3Expressive.FloatingActionButton</item>
+        <item name="bottomNavigationStyle">@style/Widget.Material3Expressive.BottomNavigationView</item>
+        <item name="toolbarStyle">@style/Widget.Material3Expressive.Toolbar</item>
         <item name="materialAlertDialogTheme">@style/MaterialAlertDialogTheme</item>
         <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
         <item name="popupMenuStyle">@style/Widget.App.PopupMenu</item>
@@ -156,7 +160,7 @@
 
     <style name="SwitchStyle" parent="Widget.Material3.CompoundButton.Switch" />
 
-    <style name="ProfileManagerDialogStyle" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="ProfileManagerDialogStyle" parent="Theme.Material3Expressive.DayNight.NoActionBar">
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">true</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
