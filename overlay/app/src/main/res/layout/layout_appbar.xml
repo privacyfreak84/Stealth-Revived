@@ -4,16 +4,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="?attr/actionBarSize"
+    android:layout_height="96dp"
     android:background="?attr/colorSurface"
-    android:paddingStart="4dp"
-    android:paddingEnd="4dp">
+    android:paddingStart="12dp"
+    android:paddingEnd="12dp">
 
     <com.cosmos.unreddit.ui.common.widget.CardButton
         android:id="@+id/menu_card"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="8dp"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
         android:contentDescription="@string/menu_sidebar"
         android:onClick="openAppDrawer"
         app:icon="@drawable/ic_menu"
@@ -24,9 +23,9 @@
 
     <com.cosmos.unreddit.ui.common.widget.AvatarView
         android:id="@+id/profile_image"
-        android:layout_width="@dimen/profile_home_app_bar_size"
-        android:layout_height="@dimen/profile_home_app_bar_size"
-        android:layout_marginStart="8dp"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:layout_marginStart="10dp"
         android:contentDescription="@null"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/menu_card"
@@ -37,37 +36,38 @@
         android:id="@+id/title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="12dp"
         android:ellipsize="end"
+        android:fontFamily="@font/stealth_medium"
+        android:letterSpacing="-0.025"
         android:maxLines="1"
         android:text="@string/brand_app_name"
         android:textAppearance="@style/TextAppearanceBrandAppBar"
-        android:fontFamily="@font/stealth_medium"
         android:textColor="?attr/colorOnSurface"
+        android:textSize="26sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/sort_icon"
         app:layout_constraintStart_toEndOf="@id/profile_image"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <com.cosmos.unreddit.ui.common.widget.SortIconView
+        android:id="@+id/sort_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/sort_card"
+        app:layout_constraintTop_toTopOf="parent"
+        app:sortType="general" />
+
     <com.cosmos.unreddit.ui.common.widget.CardButton
         android:id="@+id/sort_card"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginEnd="8dp"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
         android:contentDescription="@string/sort_title"
         app:icon="@drawable/ic_sort"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         style="@style/CardButtonStyle" />
-
-    <com.cosmos.unreddit.ui.common.widget.SortIconView
-        android:id="@+id/sort_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingHorizontal="12dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/sort_card"
-        app:layout_constraintTop_toTopOf="parent"
-        app:sortType="general" />
 </androidx.constraintlayout.widget.ConstraintLayout>
