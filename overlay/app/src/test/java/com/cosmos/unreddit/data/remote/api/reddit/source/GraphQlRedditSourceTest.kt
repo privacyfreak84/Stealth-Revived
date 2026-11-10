@@ -34,4 +34,14 @@ class GraphQlRedditSourceTest {
         assertNull(GraphQlRedditSource.sanitizeColor("not-a-colour"))
         assertNull(GraphQlRedditSource.sanitizeColor(null))
     }
+
+    @Test
+    fun normalizesMissingGraphQlTextInsteadOfDisplayingNull() {
+        assertNull(GraphQlRedditSource.normalizedText(null))
+        assertNull(GraphQlRedditSource.normalizedText("null"))
+        assertNull(GraphQlRedditSource.normalizedText(" NULL "))
+        assertNull(GraphQlRedditSource.normalizedText("undefined"))
+        assertNull(GraphQlRedditSource.normalizedText("   "))
+        assertEquals("This is a comment", GraphQlRedditSource.normalizedText("This is a comment"))
+    }
 }
