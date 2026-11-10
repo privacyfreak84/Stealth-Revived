@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AmoledAppTheme" parent="AppTheme.TokyoNight">
+        <item name="android:colorBackground">#000000</item>
+        <item name="colorSurface">#000000</item>
+        <item name="colorOnSurface">#C0CAF5</item>
+        <item name="colorSurfaceVariant">#171A2B</item>
+        <item name="colorOnSurfaceVariant">#A9B2D0</item>
+        <item name="colorSurfaceInverse">#E8EAF6</item>
+        <item name="colorOnSurfaceInverse">#000000</item>
+        <item name="colorOutline">#8994B9</item>
+        <item name="android:textColor">#C0CAF5</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+</resources>
