@@ -16,6 +16,7 @@
         <item name="colorOutline">#737F99</item>
         <item name="colorPrimaryDark">#26365F</item><item name="colorAccent">#8056B3</item><item name="colorControlActivated">#34548A</item>
         <item name="android:textColor">#27324C</item><item name="android:windowLightStatusBar">true</item>
+        <item name="colorSurfaceContainerLowest">#FCFDFF</item><item name="colorSurfaceContainerLow">#F0F2FB</item><item name="colorSurfaceContainer">#EBEDF6</item><item name="colorSurfaceContainerHigh">#E5E7F1</item><item name="colorSurfaceContainerHighest">#DEE1EB</item><item name="colorSurfaceBright">#F5F7FF</item><item name="colorSurfaceDim">#D8DBE6</item><item name="colorOutlineVariant">#BAC1D1</item>
     </style>
     <style name="AppTheme.Nord" parent="AppTheme">
         <item name="colorPrimary">#48678E</item><item name="colorOnPrimary">#FFFFFF</item><item name="colorPrimaryInverse">#D8E3F2</item>
@@ -33,6 +34,7 @@
         <item name="colorOutline">#6E7B91</item>
         <item name="colorPrimaryDark">#3B536F</item><item name="colorAccent">#88C0D0</item><item name="colorControlActivated">#48678E</item>
         <item name="android:textColor">#2E3440</item><item name="android:windowLightStatusBar">true</item>
+        <item name="colorSurfaceContainerLowest">#F9FAFC</item><item name="colorSurfaceContainerLow">#E7EAF0</item><item name="colorSurfaceContainer">#E2E6EB</item><item name="colorSurfaceContainerHigh">#DDE0E6</item><item name="colorSurfaceContainerHighest">#D7DAE0</item><item name="colorSurfaceBright">#ECEFF4</item><item name="colorSurfaceDim">#D1D5DB</item><item name="colorOutlineVariant">#B3BBC7</item>
     </style>
     <style name="AppTheme.Gruvbox" parent="AppTheme">
         <item name="colorPrimary">#076678</item><item name="colorOnPrimary">#FFFFFF</item><item name="colorPrimaryInverse">#CDE9E7</item>
@@ -50,6 +52,7 @@
         <item name="colorOutline">#82766A</item>
         <item name="colorPrimaryDark">#054C59</item><item name="colorAccent">#AF3A03</item><item name="colorControlActivated">#076678</item>
         <item name="android:textColor">#3C3836</item><item name="android:windowLightStatusBar">true</item>
+        <item name="colorSurfaceContainerLowest">#FEFBEE</item><item name="colorSurfaceContainerLow">#F6ECC3</item><item name="colorSurfaceContainer">#F1E8C0</item><item name="colorSurfaceContainerHigh">#ECE2BB</item><item name="colorSurfaceContainerHighest">#E6DDB7</item><item name="colorSurfaceBright">#FBF1C7</item><item name="colorSurfaceDim">#E0D7B3</item><item name="colorOutlineVariant">#C5BA9D</item>
     </style>
     <style name="AppTheme.Dracula" parent="AppTheme">
         <item name="colorPrimary">#6C4AB6</item><item name="colorOnPrimary">#FFFFFF</item><item name="colorPrimaryInverse">#E6DDFF</item>
@@ -67,6 +70,7 @@
         <item name="colorOutline">#777987</item>
         <item name="colorPrimaryDark">#4C3188</item><item name="colorAccent">#B03070</item><item name="colorControlActivated">#6C4AB6</item>
         <item name="android:textColor">#282A36</item><item name="android:windowLightStatusBar">true</item>
+        <item name="colorSurfaceContainerLowest">#FDFDFB</item><item name="colorSurfaceContainerLow">#F3F3ED</item><item name="colorSurfaceContainer">#EEEEE9</item><item name="colorSurfaceContainerHigh">#E7E8E3</item><item name="colorSurfaceContainerHighest">#E1E1DD</item><item name="colorSurfaceBright">#F8F8F2</item><item name="colorSurfaceDim">#DBDBD8</item><item name="colorOutlineVariant">#BEBFC2</item>
     </style>
     <style name="AppTheme.Catppuccin" parent="AppTheme">
         <item name="colorPrimary">#1B5BD0</item><item name="colorOnPrimary">#FFFFFF</item><item name="colorPrimaryInverse">#DCE5FF</item>
@@ -84,5 +88,6 @@
         <item name="colorOutline">#6A718B</item>
         <item name="colorPrimaryDark">#174EA6</item><item name="colorAccent">#8839EF</item><item name="colorControlActivated">#1B5BD0</item>
         <item name="android:textColor">#4C4F69</item><item name="android:windowLightStatusBar">true</item>
+        <item name="colorSurfaceContainerLowest">#FAFBFC</item><item name="colorSurfaceContainerLow">#EBEDF2</item><item name="colorSurfaceContainer">#E7E9EE</item><item name="colorSurfaceContainerHigh">#E2E4EA</item><item name="colorSurfaceContainerHighest">#DDDFE6</item><item name="colorSurfaceBright">#EFF1F5</item><item name="colorSurfaceDim">#D8DAE1</item><item name="colorOutlineVariant">#B3B7C5</item>
     </style>
 </resources>

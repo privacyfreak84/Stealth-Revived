@@ -7,8 +7,10 @@ Stealth Revived keeps the native Android client and its existing browsing, local
 ## What's changed
 
 - Rebranded as **Stealth Revived**, with a new launcher mark and application ID: `com.privacyfreak84.stealthrevived`.
-- Tokyo Night is the default color scheme. Nord, Gruvbox, Dracula and Catppuccin Mocha are selectable from the navigation drawer.
-- A new side navigation drawer is the default. The original floating bottom navigation remains available under **Navigation layout**.
+- A Material 3 Expressive UI built in Jetpack Compose: shape-morphing buttons, spring motion, loading indicators, flexible app bars and a floating media toolbar. See [the design notes](docs/M3_EXPRESSIVE_MIGRATION.md).
+- Tokyo Night is the default color scheme. Nord, Gruvbox, Dracula, Catppuccin Mocha and wallpaper colors (Material You, Android 12+) are selectable under **Settings → Color scheme**.
+- An Expressive bottom navigation bar replaces the old floating bar and side drawer.
+- Requires Android 7.0 or later.
 - Reddit requests originate on-device and go directly to Reddit's OAuth and JSON endpoints. The app does not require a public Redlib, Teddit or other frontend instance. See [the transport notes](docs/LOCAL_REDDIT_TRANSPORT.md).
 
 ## Build a debug APK
