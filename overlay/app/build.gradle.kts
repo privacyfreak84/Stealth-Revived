@@ -5,6 +5,7 @@ plugins {
     id("com.android.application")
     kotlin("android")
     id("kotlin-parcelize")
+    kotlin("kapt")
     id("com.google.devtools.ksp")
     id("dagger.hilt.android.plugin")
     id("androidx.navigation.safeargs.kotlin")
@@ -111,7 +112,7 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:${Dependencies.Versions.navigation}")
 
     implementation("androidx.room:room-runtime:${Dependencies.Versions.room}")
-    ksp("androidx.room:room-compiler:${Dependencies.Versions.room}")
+    kapt("androidx.room:room-compiler:${Dependencies.Versions.room}")
     implementation("androidx.room:room-ktx:${Dependencies.Versions.room}")
     implementation("androidx.datastore:datastore-preferences:${Dependencies.Versions.datastore}")
 
