@@ -124,6 +124,7 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:${Dependencies.Versions.retrofit}")
     implementation("com.squareup.retrofit2:converter-moshi:${Dependencies.Versions.retrofit}")
     implementation("com.squareup.moshi:moshi:${Dependencies.Versions.moshi}")
+    implementation("com.squareup.moshi:moshi-kotlin:${Dependencies.Versions.moshi}")
     implementation("com.squareup.moshi:moshi-adapters:${Dependencies.Versions.moshi}")
     implementation("com.squareup.okio:okio:${Dependencies.Versions.moshi}")
 
