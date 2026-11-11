@@ -28,8 +28,8 @@ class RedditSource @Inject constructor(
     private val listListingJsonAdapter = moshi.adapter<List<Listing>>(
         Types.newParameterizedType(List::class.java, Listing::class.java)
     )
-    private val aboutChildAdapter = moshi.adapter(AboutChild::class.java)
-    private val aboutUserChildAdapter = moshi.adapter(AboutUserChild::class.java)
+    private val aboutChildAdapter = moshi.adapter(Child::class.java)
+    private val aboutUserChildAdapter = moshi.adapter(Child::class.java)
     private val moreChildrenAdapter = moshi.adapter(MoreChildren::class.java)
 
     override suspend fun getSubreddit(
