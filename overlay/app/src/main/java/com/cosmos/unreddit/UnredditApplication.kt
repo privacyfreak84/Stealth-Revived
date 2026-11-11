@@ -63,6 +63,6 @@ class UnredditApplication : Application(), ImageLoaderFactory, Configuration.Pro
             else add(GifDecoder.Factory())
         }.crossfade(true).build()
 
-    override fun getWorkManagerConfiguration(): Configuration =
-        Configuration.Builder().setWorkerFactory(workerFactory).build()
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder().setWorkerFactory(workerFactory).build()
 }
