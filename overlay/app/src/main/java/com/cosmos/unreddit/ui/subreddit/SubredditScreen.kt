@@ -197,7 +197,7 @@ private fun SubredditHeader(
                     ToggleButton(
                         checked = subscribed,
                         onCheckedChange = { onToggle() },
-                        colors = ToggleButtonDefaults.toggleButtonColors(),
+                        colors = ToggleButtonDefaults.colors(),
                     ) {
                         AnimatedContent(subscribed, label = "subscribe") { isSubscribed ->
                             Row(verticalAlignment = Alignment.CenterVertically) {

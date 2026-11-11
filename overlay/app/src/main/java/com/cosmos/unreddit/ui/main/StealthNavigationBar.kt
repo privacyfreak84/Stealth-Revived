@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Home
@@ -82,36 +83,40 @@ fun StealthNavigationBar(
     modifier: Modifier = Modifier,
 ) {
     val motion = MaterialTheme.motionScheme
-    AnimatedVisibility(
-        visible = visible,
-        modifier = modifier,
-        enter = slideInVertically(motion.defaultSpatialSpec()) { it } + fadeIn(motion.defaultEffectsSpec()),
-        exit = slideOutVertically(motion.fastSpatialSpec()) { it } + fadeOut(motion.fastEffectsSpec()),
-    ) {
-        ShortNavigationBar {
-            TopLevelDestination.entries.forEach { destination ->
-                val isSelected = destination == selected
-                val scale by animateFloatAsState(
-                    targetValue = if (isSelected) 1.12f else 1f,
-                    animationSpec = motion.fastSpatialSpec(),
-                    label = "navIconScale",
-                )
-                ShortNavigationBarItem(
-                    selected = isSelected,
-                    onClick = {
-                        if (isSelected) onReselect(destination) else onSelect(destination)
-                    },
-                    icon = {
-                        Crossfade(isSelected, animationSpec = motion.fastEffectsSpec(), label = "navIcon") { filled ->
-                            Icon(
-                                imageVector = if (filled) destination.selectedIcon else destination.unselectedIcon,
-                                contentDescription = null,
-                                modifier = Modifier.graphicsLayer { scaleX = scale; scaleY = scale },
-                            )
-                        }
-                    },
-                    label = { Text(stringResource(destination.label)) },
-                )
+    // ShortNavigationBar (material3 1.5) coerces each item's width up to the bar's minimum
+    // width, so a fixed-width bar (e.g. fillMaxWidth) shows only its first item. The Box
+    // relaxes minimum constraints, and the bar itself must not get a size modifier.
+    Box(modifier) {
+        AnimatedVisibility(
+            visible = visible,
+            enter = slideInVertically(motion.defaultSpatialSpec()) { it } + fadeIn(motion.defaultEffectsSpec()),
+            exit = slideOutVertically(motion.fastSpatialSpec()) { it } + fadeOut(motion.fastEffectsSpec()),
+        ) {
+            ShortNavigationBar {
+                TopLevelDestination.entries.forEach { destination ->
+                    val isSelected = destination == selected
+                    val scale by animateFloatAsState(
+                        targetValue = if (isSelected) 1.12f else 1f,
+                        animationSpec = motion.fastSpatialSpec(),
+                        label = "navIconScale",
+                    )
+                    ShortNavigationBarItem(
+                        selected = isSelected,
+                        onClick = {
+                            if (isSelected) onReselect(destination) else onSelect(destination)
+                        },
+                        icon = {
+                            Crossfade(isSelected, animationSpec = motion.fastEffectsSpec(), label = "navIcon") { filled ->
+                                Icon(
+                                    imageVector = if (filled) destination.selectedIcon else destination.unselectedIcon,
+                                    contentDescription = null,
+                                    modifier = Modifier.graphicsLayer { scaleX = scale; scaleY = scale },
+                                )
+                            }
+                        },
+                        label = { Text(stringResource(destination.label)) },
+                    )
+                }
             }
         }
     }

@@ -73,3 +73,5 @@ app/src/main/res/values-v30/styles.xml
 app/src/main/java/com/cosmos/unreddit/util/extension/BindingExt.kt
 app/src/main/java/com/cosmos/unreddit/util/extension/FragmentExt.kt
 app/src/main/java/com/cosmos/unreddit/util/extension/ViewPagerExt.kt
+app/src/main/java/com/cosmos/unreddit/util/extension/ViewExt.kt
+app/src/main/java/com/cosmos/unreddit/util/extension/PermissionExt.kt

@@ -43,7 +43,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
-import androidx.compose.material3.ToggleButtonDefaults
+import androidx.compose.material3.FilledTonalToggleButtonDefaults
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -346,7 +346,7 @@ private fun PostActions(post: PostEntity, callbacks: PostCallbacks, modifier: Mo
             checked = false,
             onCheckedChange = { callbacks.onOpen(post) },
             shapes = ButtonGroupDefaults.connectedLeadingButtonShapes(),
-            colors = ToggleButtonDefaults.tonalToggleButtonColors(),
+            colors = FilledTonalToggleButtonDefaults.colors(),
         ) {
             Icon(Icons.Rounded.ArrowUpward, null, Modifier.size(18.dp))
             Spacer(Modifier.width(6.dp))
@@ -356,7 +356,7 @@ private fun PostActions(post: PostEntity, callbacks: PostCallbacks, modifier: Mo
             checked = false,
             onCheckedChange = { callbacks.onOpen(post) },
             shapes = ButtonGroupDefaults.connectedTrailingButtonShapes(),
-            colors = ToggleButtonDefaults.tonalToggleButtonColors(),
+            colors = FilledTonalToggleButtonDefaults.colors(),
         ) {
             Icon(Icons.AutoMirrored.Rounded.Comment, null, Modifier.size(18.dp))
             Spacer(Modifier.width(6.dp))
