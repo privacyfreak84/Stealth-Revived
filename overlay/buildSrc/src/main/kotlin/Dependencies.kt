@@ -18,7 +18,7 @@ object Dependencies {
 
         const val navigation = "2.5.3"
 
-        const val room = "2.7.2"
+        const val room = "2.8.5"
         const val datastore = "1.0.0"
 
         const val paging = "3.1.1"
