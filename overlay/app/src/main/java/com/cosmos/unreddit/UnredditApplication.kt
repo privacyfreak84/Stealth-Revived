@@ -29,6 +29,9 @@ class UnredditApplication : Application(), ImageLoaderFactory, Configuration.Pro
         private set
     private var forceAmoled = false
 
+    /** True when the user picked the pure-black AMOLED night mode. */
+    val isAmoled: Boolean get() = forceAmoled
+
     var appTheme: Int
         get() = if (forceAmoled) R.style.AmoledAppTheme else when (colorScheme) {
             BrandingPreferences.ColorScheme.TOKYO_NIGHT -> R.style.AppTheme_TokyoNight
@@ -36,6 +39,8 @@ class UnredditApplication : Application(), ImageLoaderFactory, Configuration.Pro
             BrandingPreferences.ColorScheme.GRUVBOX -> R.style.AppTheme_Gruvbox
             BrandingPreferences.ColorScheme.DRACULA -> R.style.AppTheme_Dracula
             BrandingPreferences.ColorScheme.CATPPUCCIN -> R.style.AppTheme_Catppuccin
+            // Dynamic colors are layered on top of this base theme by MainActivity.
+            BrandingPreferences.ColorScheme.DYNAMIC -> R.style.AppTheme_TokyoNight
         }
         set(mode) {
             forceAmoled = UiPreferences.NightMode.isAmoled(mode)

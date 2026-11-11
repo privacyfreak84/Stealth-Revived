@@ -16,16 +16,12 @@ class BrandingPreferencesRepository @Inject constructor(
 ) {
     fun getColorScheme(): Flow<BrandingPreferences.ColorScheme> =
         datastore.data.map { BrandingPreferences.ColorScheme.fromKey(it[Keys.COLOR_SCHEME]) }
+
     suspend fun setColorScheme(scheme: BrandingPreferences.ColorScheme) {
         datastore.edit { it[Keys.COLOR_SCHEME] = scheme.key }
     }
-    fun getNavigationLayout(): Flow<BrandingPreferences.NavigationLayout> =
-        datastore.data.map { BrandingPreferences.NavigationLayout.fromKey(it[Keys.NAVIGATION_LAYOUT]) }
-    suspend fun setNavigationLayout(layout: BrandingPreferences.NavigationLayout) {
-        datastore.edit { it[Keys.NAVIGATION_LAYOUT] = layout.key }
-    }
+
     private object Keys {
         val COLOR_SCHEME = stringPreferencesKey("brand_color_scheme")
-        val NAVIGATION_LAYOUT = stringPreferencesKey("brand_navigation_layout")
     }
 }

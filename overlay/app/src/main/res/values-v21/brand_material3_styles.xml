@@ -7,7 +7,7 @@
         <item name="postSplashScreenTheme">@style/AppTheme</item>
     </style>
 
-    <style name="BaseTheme" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="BaseTheme" parent="Theme.Material3Expressive.DayNight.NoActionBar">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
@@ -156,7 +156,7 @@
 
     <style name="SwitchStyle" parent="Widget.Material3.CompoundButton.Switch" />
 
-    <style name="ProfileManagerDialogStyle" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="ProfileManagerDialogStyle" parent="Theme.Material3Expressive.DayNight.NoActionBar">
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">true</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
