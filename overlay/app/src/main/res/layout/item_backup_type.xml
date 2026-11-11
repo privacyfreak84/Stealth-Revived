@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools">
+<data><variable name="backupType" type="com.cosmos.unreddit.data.model.BackupTypeItem"/></data>
+<com.google.android.material.card.MaterialCardView android:id="@+id/card" android:layout_width="match_parent" android:layout_height="@dimen/subscriptions_card_height" android:layout_marginHorizontal="10dp" android:layout_marginVertical="5dp" android:clickable="true" android:focusable="true" android:checkable="true" app:cardBackgroundColor="?attr/colorSurfaceContainerLow" app:cardCornerRadius="24dp" app:cardElevation="0dp" app:strokeWidth="1dp" app:strokeColor="?attr/colorOutlineVariant">
+<LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center_vertical" android:orientation="horizontal" android:padding="16dp">
+<com.google.android.material.imageview.ShapeableImageView android:id="@+id/type_image" android:layout_width="@dimen/subscriptions_image_size" android:layout_height="@dimen/subscriptions_image_size" android:background="?attr/colorPrimaryContainer" android:tint="?attr/colorOnPrimaryContainer" app:shapeAppearanceOverlay="@style/CircularImageViewStyle" tools:src="@drawable/ic_stealth"/>
+<TextView android:id="@+id/type_name" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:layout_weight="1" android:text="@{backupType.type.displayName}" android:textAppearance="@style/TextAppearance.Material3.TitleMedium" android:textColor="?attr/colorOnSurface" tools:text="Stealth"/>
+</LinearLayout>
+</com.google.android.material.card.MaterialCardView>
+</layout>

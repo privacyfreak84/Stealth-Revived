@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:background="?attr/colorSurface"
+    android:paddingHorizontal="12dp">
+
+    <com.cosmos.unreddit.ui.common.widget.CardButton
+        android:id="@+id/back_card"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:contentDescription="Back"
+        app:icon="@drawable/ic_arrow_back"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        style="@style/CardButtonStyle" />
+
+    <TextView
+        android:id="@+id/label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="14dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearanceBrandAppBar"
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="22sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/sort_icon"
+        app:layout_constraintStart_toEndOf="@id/back_card"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Community" />
+
+    <com.cosmos.unreddit.ui.common.widget.SortIconView
+        android:id="@+id/sort_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="6dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/sort_card"
+        app:layout_constraintTop_toTopOf="parent"
+        app:sortType="post" />
+
+    <com.cosmos.unreddit.ui.common.widget.CardButton
+        android:id="@+id/sort_card"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:contentDescription="@string/sort_title"
+        app:icon="@drawable/ic_sort"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/more_card"
+        app:layout_constraintTop_toTopOf="parent"
+        style="@style/CardButtonStyle" />
+
+    <com.cosmos.unreddit.ui.common.widget.CardButton
+        android:id="@+id/more_card"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:contentDescription="More actions"
+        app:icon="@drawable/ic_more"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        style="@style/CardButtonStyle" />
+</androidx.constraintlayout.widget.ConstraintLayout>

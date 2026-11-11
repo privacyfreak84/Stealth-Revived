@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="subreddit"
+            type="com.cosmos.unreddit.data.model.db.SubredditEntity" />
+    </data>
+
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?attr/colorSurface"
+        tools:context=".MainActivity">
+
+        <com.cosmos.unreddit.util.DrawerContent
+            android:id="@+id/drawer_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layoutDescription="@xml/scene_sidebar">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:cardBackgroundColor="?attr/colorSurface"
+                app:cardCornerRadius="0dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
+
+                <include
+                    android:id="@+id/subreddit_content"
+                    layout="@layout/layout_subreddit_content" />
+            </com.google.android.material.card.MaterialCardView>
+        </com.cosmos.unreddit.util.DrawerContent>
+
+        <include
+            android:id="@+id/subreddit_about"
+            layout="@layout/layout_subreddit_about"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="end" />
+    </androidx.drawerlayout.widget.DrawerLayout>
+</layout>

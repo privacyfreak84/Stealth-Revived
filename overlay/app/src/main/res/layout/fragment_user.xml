@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="user"
+            type="com.cosmos.unreddit.data.model.User" />
+    </data>
+
+    <androidx.constraintlayout.motion.widget.MotionLayout
+        android:id="@+id/layout_root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?attr/colorSurface"
+        app:layoutDescription="@xml/scene_user"
+        tools:context=".MainActivity">
+
+        <ImageView
+            android:id="@+id/user_metrics_header"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/user_metrics_header_height"
+            android:contentDescription="@null"
+            android:scaleType="centerCrop"
+            android:src="@drawable/brand_profile_hero" />
+
+        <View
+            android:id="@+id/user_header"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/user_header_height"
+            android:background="@drawable/header_background" />
+
+        <com.cosmos.unreddit.ui.common.widget.CardButton
+            android:id="@+id/back_card"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="12dp"
+            android:contentDescription="Back"
+            app:icon="@drawable/ic_arrow_back"
+            app:layout_constraintBottom_toBottomOf="@id/guideline_app_bar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            style="@style/CardButtonStyle" />
+
+        <com.cosmos.unreddit.ui.common.widget.CardButton
+            android:id="@+id/sort_card"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_marginEnd="12dp"
+            android:contentDescription="@string/sort_title"
+            app:icon="@drawable/ic_sort"
+            app:layout_constraintBottom_toBottomOf="@id/guideline_app_bar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            style="@style/CardButtonStyle" />
+
+        <com.cosmos.unreddit.ui.common.widget.SortIconView
+            android:id="@+id/sort_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="8dp"
+            app:layout_constraintBottom_toBottomOf="@id/guideline_app_bar"
+            app:layout_constraintEnd_toStartOf="@id/sort_card"
+            app:layout_constraintTop_toTopOf="parent"
+            app:sortType="user" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/user_image"
+            android:layout_width="@dimen/user_image_size_expanded"
+            android:layout_height="@dimen/user_image_size_expanded"
+            android:contentDescription="@null"
+            android:cropToPadding="true"
+            android:scaleType="centerCrop"
+            app:shapeAppearanceOverlay="@style/CircularImageViewStyle"
+            tools:src="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@{user.displayName}"
+            android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
+            android:textColor="?attr/colorOnSurface"
+            tools:text="User" />
+
+        <TextView
+            android:id="@+id/user_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{user.title}"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textAlignment="center"
+            app:layout_constrainedWidth="true"
+            tools:text="A short profile bio" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_app_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="?attr/actionBarSize" />
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabs"
+            style="@style/TabLayoutStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/user_metrics_header" />
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:paddingBottom="20dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tabs" />
+
+        <TextView
+            android:id="@+id/user_link_karma"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{user.getPostKarmaCount()}"
+            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+            android:textColor="?attr/colorOnPrimaryContainer"
+            tools:text="10k" />
+
+        <TextView
+            android:id="@+id/user_comment_karma"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{user.getCommentKarmaCount()}"
+            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+            android:textColor="?attr/colorOnPrimaryContainer"
+            tools:text="950" />
+
+        <TextView
+            android:id="@+id/user_cake_day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{user.getCakeDay()}"
+            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+            android:textColor="?attr/colorOnPrimaryContainer"
+            tools:text="01/01/01" />
+
+        <TextView
+            android:id="@+id/user_link_karma_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/user_post_karma"
+            android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
+            android:textColor="?attr/colorOnPrimaryContainer" />
+
+        <TextView
+            android:id="@+id/user_comment_karma_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/user_comment_karma"
+            android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
+            android:textColor="?attr/colorOnPrimaryContainer" />
+
+        <TextView
+            android:id="@+id/user_cake_day_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/user_cake_day"
+            android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
+            android:textColor="?attr/colorOnPrimaryContainer" />
+
+        <com.cosmos.unreddit.ui.common.widget.InfoBarView
+            android:id="@+id/info_retry"
+            style="@style/InfoBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tabs"
+            app:textMessage="@string/network_retry_message"
+            app:textAction="@string/network_retry_action"
+            tools:visibility="visible" />
+    </androidx.constraintlayout.motion.widget.MotionLayout>
+</layout>
