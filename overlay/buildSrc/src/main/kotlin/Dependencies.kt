@@ -33,7 +33,7 @@ object Dependencies {
         const val exoPlayer = "2.18.1"
         const val retrofit = "2.9.0"
         const val moshi = "1.14.0"
-        const val moshiCodegen = "2.0.0-alpha.1"
+        const val moshiCodegen = "1.14.0"
         const val okio = "3.2.0"
         const val coil = "2.2.2"
         const val jsoup = "1.15.3"
