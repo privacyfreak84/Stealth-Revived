@@ -5,7 +5,6 @@ plugins {
     id("com.android.application")
     kotlin("android")
     id("kotlin-parcelize")
-    kotlin("kapt")
     id("com.google.devtools.ksp")
     id("dagger.hilt.android.plugin")
     id("androidx.navigation.safeargs.kotlin")
@@ -125,7 +124,6 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:${Dependencies.Versions.retrofit}")
     implementation("com.squareup.retrofit2:converter-moshi:${Dependencies.Versions.retrofit}")
     implementation("com.squareup.moshi:moshi:${Dependencies.Versions.moshi}")
-    kapt("com.squareup.moshi:moshi-kotlin-codegen:${Dependencies.Versions.moshi}")
     implementation("com.squareup.moshi:moshi-adapters:${Dependencies.Versions.moshi}")
     implementation("com.squareup.okio:okio:${Dependencies.Versions.moshi}")
 
