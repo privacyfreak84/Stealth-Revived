@@ -1,6 +1,6 @@
 object Dependencies {
     object Versions {
-        const val kotlin = "2.3.21"
+        const val kotlin = "1.9.25"
         const val androidGradlePlugin = "8.13.2"
         const val hiltGradlePlugin = "2.58"
 
@@ -25,15 +25,15 @@ object Dependencies {
         const val work = "2.7.1"
 
         const val material = "1.14.0"
-        const val ksp = "2.3.12"
+        const val ksp = "1.9.25-1.0.20"
         const val browser = "1.4.0"
         const val splashscreen = "1.0.0"
 
         const val touchImageView = "3.0.3"
         const val exoPlayer = "2.18.1"
         const val retrofit = "2.9.0"
-        const val moshi = "2.0.0-alpha.1"
-        const val moshiCodegen = "2.0.0-alpha.1"
+        const val moshi = "1.15.2"
+        const val moshiCodegen = "1.15.2"
         const val okio = "3.7.0"
         const val coil = "2.2.2"
         const val jsoup = "1.15.3"
