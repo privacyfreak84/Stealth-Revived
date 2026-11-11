@@ -1,6 +1,5 @@
 package com.cosmos.unreddit.ui.main
 
-import androidx.annotation.IdRes
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
@@ -30,27 +29,44 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import com.cosmos.unreddit.R
+import com.cosmos.unreddit.ui.navigation.Routes
 
 /** A top-level destination shown in the bottom navigation bar. */
 enum class TopLevelDestination(
-    @IdRes val graphId: Int,
+    val graphRoute: String,
+    val startRoute: String,
     @StringRes val label: Int,
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector,
 ) {
-    HOME(R.id.home, R.string.navigation_label_home, Icons.Rounded.Home, Icons.Outlined.Home),
+    HOME(
+        Routes.HOME_GRAPH, Routes.HOME, R.string.navigation_label_home,
+        Icons.Rounded.Home, Icons.Outlined.Home
+    ),
     SUBSCRIPTIONS(
-        R.id.subscriptions, R.string.navigation_label_subscriptions,
+        Routes.SUBSCRIPTIONS_GRAPH, Routes.SUBSCRIPTIONS, R.string.navigation_label_subscriptions,
         Icons.Rounded.Subscriptions, Icons.Outlined.Subscriptions
     ),
     PROFILE(
-        R.id.profile, R.string.navigation_label_profile,
+        Routes.PROFILE_GRAPH, Routes.PROFILE, R.string.navigation_label_profile,
         Icons.Rounded.AccountCircle, Icons.Outlined.AccountCircle
     ),
     SETTINGS(
-        R.id.settings, R.string.navigation_label_settings,
+        Routes.SETTINGS_GRAPH, Routes.SETTINGS, R.string.navigation_label_settings,
         Icons.Rounded.Settings, Icons.Outlined.Settings
     ),
+}
+
+/** Re-taps on the current tab, so the screen can scroll back to the top. */
+object TopLevelReselect {
+    private val _events = kotlinx.coroutines.flow.MutableSharedFlow<TopLevelDestination>(
+        extraBufferCapacity = 1
+    )
+    val events: kotlinx.coroutines.flow.SharedFlow<TopLevelDestination> = _events
+
+    fun emit(destination: TopLevelDestination) {
+        _events.tryEmit(destination)
+    }
 }
 
 /**
