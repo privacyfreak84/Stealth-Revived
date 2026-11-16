@@ -8,12 +8,15 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.calculatePan
@@ -172,8 +175,8 @@ fun MediaViewerScreen(
                     val current = items.getOrNull(pager.currentPage)
                     AnimatedVisibility(
                         visible = controlsVisible,
-                        enter = fadeIn() + slideInVertically { it / 2 },
-                        exit = fadeOut() + slideOutVertically { it / 2 },
+                        enter = fadeIn(controlsFade()) + slideInVertically(controlsSlide()) { it / 2 },
+                        exit = fadeOut(controlsFade()) + slideOutVertically(controlsSlide()) { it / 2 },
                         modifier = Modifier.align(Alignment.BottomCenter),
                     ) {
                         Column(
@@ -301,20 +304,19 @@ private fun ZoomableImage(url: String, onTap: () -> Unit, onZoomChanged: (Boolea
         Modifier
             .fillMaxSize()
             .onSizeChanged { bounds = it }
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onTap = { onTap() },
-                    onDoubleTap = { tap ->
-                        if (scale > 1f) {
-                            scale = 1f; offset = Offset.Zero
-                        } else {
-                            scale = 2.5f
-                            offset = clamp((Offset(size.width / 2f, size.height / 2f) - tap) * 1.5f, scale)
-                        }
-                        onZoomChanged(scale > 1f)
-                    },
-                )
-            }
+            .tapOrDoubleTap(
+                Unit,
+                onTap = onTap,
+                onDoubleTap = { tap ->
+                    if (scale > 1f) {
+                        scale = 1f; offset = Offset.Zero
+                    } else {
+                        scale = 2.5f
+                        offset = clamp((Offset(bounds.width / 2f, bounds.height / 2f) - tap) * 1.5f, scale)
+                    }
+                    onZoomChanged(scale > 1f)
+                },
+            )
             .pointerInput(Unit) {
                 awaitEachGesture {
                     awaitFirstDown(requireUnconsumed = false)
@@ -384,6 +386,7 @@ private fun VideoPage(
     // While the thumb is held, show where it is instead of the playing position.
     var scrubbing by remember { mutableStateOf<Float?>(null) }
     var skipHint by remember { mutableStateOf<Int?>(null) }
+    var pageWidth by remember { mutableIntStateOf(0) }
 
     DisposableEffect(player) { onDispose { player.release() } }
     LaunchedEffect(active, playing) { player.playWhenReady = active && playing }
@@ -404,16 +407,15 @@ private fun VideoPage(
     }
 
     Box(
-        Modifier.fillMaxSize().pointerInput(player) {
-            detectTapGestures(
-                onTap = { onTap() },
-                onDoubleTap = { tap ->
-                    val forward = tap.x > size.width / 2f
-                    skip(if (forward) SKIP_MS else -SKIP_MS)
-                    skipHint = if (forward) 1 else -1
-                },
-            )
-        },
+        Modifier.fillMaxSize().onSizeChanged { pageWidth = it.width }.tapOrDoubleTap(
+            player,
+            onTap = onTap,
+            onDoubleTap = { tap ->
+                val forward = tap.x > pageWidth / 2f
+                skip(if (forward) SKIP_MS else -SKIP_MS)
+                skipHint = if (forward) 1 else -1
+            },
+        ),
     ) {
         AndroidView(
             factory = {
@@ -430,7 +432,7 @@ private fun VideoPage(
         )
         AnimatedVisibility(
             visible = skipHint != null,
-            enter = fadeIn(), exit = fadeOut(),
+            enter = fadeIn(controlsFade()), exit = fadeOut(controlsFade()),
             modifier = Modifier
                 .align(if ((skipHint ?: 1) > 0) Alignment.CenterEnd else Alignment.CenterStart)
                 .padding(horizontal = 40.dp),
@@ -457,7 +459,7 @@ private fun VideoPage(
         }
         AnimatedVisibility(
             controlsVisible,
-            enter = fadeIn(), exit = fadeOut(),
+            enter = fadeIn(controlsFade()), exit = fadeOut(controlsFade()),
             modifier = Modifier.align(Alignment.Center),
         ) {
             FilledIconButton(
@@ -474,7 +476,7 @@ private fun VideoPage(
         }
         AnimatedVisibility(
             controlsVisible,
-            enter = fadeIn(), exit = fadeOut(),
+            enter = fadeIn(controlsFade()), exit = fadeOut(controlsFade()),
             modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 96.dp),
         ) {
             val fraction = scrubbing ?: if (duration > 0) position.toFloat() / duration else 0f
@@ -520,4 +522,34 @@ internal fun formatDuration(millis: Long): String {
     val minutes = (total % 3600) / 60
     val seconds = total % 60
     return if (hours > 0) "%d:%02d:%02d".format(hours, minutes, seconds) else "%d:%02d".format(minutes, seconds)
+}
+
+private const val CONTROLS_ANIM_MS = 120
+
+private fun controlsFade() = tween<Float>(CONTROLS_ANIM_MS)
+
+private fun controlsSlide() = tween<IntOffset>(CONTROLS_ANIM_MS)
+
+/**
+ * A single tap fires on release, with no wait. detectTapGestures holds single taps until the
+ * double-tap timeout (about 300 ms) has passed, which made the controls feel slow. Here a
+ * double tap fires [onTap] a second time to undo the first toggle, then [onDoubleTap].
+ */
+private fun Modifier.tapOrDoubleTap(
+    key: Any?,
+    onTap: () -> Unit,
+    onDoubleTap: (Offset) -> Unit,
+): Modifier = pointerInput(key) {
+    awaitEachGesture {
+        awaitFirstDown()
+        val firstUp = waitForUpOrCancellation() ?: return@awaitEachGesture
+        firstUp.consume()
+        onTap()
+        withTimeoutOrNull(viewConfiguration.doubleTapTimeoutMillis) { awaitFirstDown() }
+            ?: return@awaitEachGesture
+        val secondUp = waitForUpOrCancellation() ?: return@awaitEachGesture
+        secondUp.consume()
+        onTap()
+        onDoubleTap(secondUp.position)
+    }
 }
