@@ -52,6 +52,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.cosmos.unreddit.R
 import com.cosmos.unreddit.data.model.User
 import com.cosmos.unreddit.data.model.db.SubredditEntity
+import com.cosmos.unreddit.ui.common.compose.NsfwTag
 import com.cosmos.unreddit.ui.common.compose.rememberPostItems
 import com.cosmos.unreddit.ui.common.compose.BackButton
 import com.cosmos.unreddit.ui.common.compose.EmptyState
@@ -221,6 +222,7 @@ fun SubredditRow(subreddit: SubredditEntity, index: Int, count: Int) {
         onClick = { links.openSubreddit(subreddit.displayName) },
         shapes = ListItemDefaults.segmentedShapes(index, count),
         leadingContent = { ShapedAvatar(subreddit.displayName, subreddit.icon) },
+        trailingContent = if (subreddit.over18) ({ NsfwTag() }) else null,
         supportingContent = {
             Text(
                 listOf(subreddit.getSubscribersCount(), subreddit.title).filter { it.isNotBlank() }.joinToString(" · "),
@@ -238,6 +240,7 @@ fun UserRow(user: User, index: Int, count: Int) {
         onClick = { links.openUser(user.displayName) },
         shapes = ListItemDefaults.segmentedShapes(index, count),
         leadingContent = { ShapedAvatar(user.displayName, user.icon) },
+        trailingContent = if (user.over18) ({ NsfwTag() }) else null,
         supportingContent = {
             Text(stringResource(R.string.user_karma, user.getPostKarmaCount()), maxLines = 1)
         },

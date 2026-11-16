@@ -185,6 +185,17 @@ fun ShapedAvatar(
 }
 
 /** Small tonal label such as NSFW, Spoiler or OC. */
+/** The red NSFW chip used on posts, communities and profiles. */
+@Composable
+fun NsfwTag(modifier: Modifier = Modifier) {
+    Tag(
+        stringResource(R.string.flair_nsfw),
+        modifier = modifier,
+        container = MaterialTheme.colorScheme.errorContainer,
+        content = MaterialTheme.colorScheme.onErrorContainer,
+    )
+}
+
 @Composable
 fun Tag(
     text: String,

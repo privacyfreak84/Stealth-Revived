@@ -60,6 +60,7 @@ import coil.compose.AsyncImage
 import com.cosmos.unreddit.R
 import com.cosmos.unreddit.data.model.Resource
 import com.cosmos.unreddit.data.model.db.SubredditEntity
+import com.cosmos.unreddit.ui.common.compose.NsfwTag
 import com.cosmos.unreddit.ui.common.compose.rememberPostItems
 import com.cosmos.unreddit.ui.common.compose.BackButton
 import com.cosmos.unreddit.ui.common.compose.ErrorState
@@ -186,14 +187,7 @@ private fun SubredditHeader(
                     ShapedAvatar(name, info?.icon, size = 64.dp)
                     Column(Modifier.weight(1f).padding(start = 14.dp)) {
                         Text(info?.title ?: "r/$name", style = MaterialTheme.typography.titleMediumEmphasized, maxLines = 2)
-                        if (info?.over18 == true) {
-                            Tag(
-                                stringResource(R.string.flair_nsfw),
-                                container = MaterialTheme.colorScheme.errorContainer,
-                                content = MaterialTheme.colorScheme.onErrorContainer,
-                                modifier = Modifier.padding(top = 4.dp),
-                            )
-                        }
+                        if (info?.over18 == true) NsfwTag(Modifier.padding(top = 4.dp))
                     }
                     ToggleButton(
                         checked = subscribed,

@@ -50,6 +50,7 @@ import com.cosmos.unreddit.R
 import com.cosmos.unreddit.data.model.Comment
 import com.cosmos.unreddit.data.model.Resource
 import com.cosmos.unreddit.data.model.User
+import com.cosmos.unreddit.ui.common.compose.NsfwTag
 import com.cosmos.unreddit.ui.common.compose.rememberPostItems
 import com.cosmos.unreddit.ui.common.compose.BackButton
 import com.cosmos.unreddit.ui.common.compose.CommentActionSheet
@@ -189,6 +190,7 @@ private fun UserHeader(name: String, info: User?) {
             ShapedAvatar(name, info?.icon, size = 72.dp, shape = MaterialShapes.Cookie12Sided.toShape())
             Column(Modifier.weight(1f).padding(start = 16.dp)) {
                 Text(info?.title?.takeIf { it.isNotBlank() } ?: "u/$name", style = MaterialTheme.typography.titleLargeEmphasized)
+                if (info?.over18 == true) NsfwTag(Modifier.padding(vertical = 4.dp))
                 if (info != null) {
                     Stat(stringResource(R.string.user_post_karma), info.getPostKarmaCount())
                     Stat(stringResource(R.string.user_comment_karma), info.getCommentKarmaCount())
