@@ -48,6 +48,15 @@ CI publishes two APKs. `stealth-revived-preview` is R8-optimised and not debugga
 (signed with the CI debug key, app id suffix `.preview`). Use it to judge smoothness, because
 Compose runs far slower in debug builds. `stealth-revived-debug` is for logs and debugging.
 
+R8 runs in full mode, which drops generic signatures from classes that no rule keeps.
+Moshi's `@FromJson`/`@ToJson` adapters (for example `RepliesAdapter`) need the
+`JsonAdapter<Listing>` parameter type at runtime, so `overlay/app/proguard-rules.pro` keeps
+`JsonAdapter`'s signature. Without it the preview build crashes at launch while Hilt builds
+Moshi, and the debug build is unaffected because it is not shrunk.
+
+Crashes in either build are written to
+`Android/data/<app id>/files/uncaught/` on the device.
+
 ## Toolchain
 
 Gradle 9.6.1, AGP 9.5.1 with built-in Kotlin, Kotlin 2.3.21, compileSdk 37,
