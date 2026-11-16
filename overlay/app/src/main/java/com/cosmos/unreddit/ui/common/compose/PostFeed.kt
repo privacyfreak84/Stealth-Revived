@@ -31,12 +31,32 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
+import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.filter
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import com.cosmos.unreddit.R
 import com.cosmos.unreddit.data.model.db.PostEntity
 import com.cosmos.unreddit.data.model.preferences.ContentPreferences
 import com.cosmos.unreddit.ui.base.BaseViewModel
 import kotlinx.coroutines.launch
+
+/**
+ * Collects a post paging flow without duplicate posts. Reddit listings shift between page
+ * requests, so the same post can come back on the next page.
+ */
+@Composable
+fun rememberPostItems(flow: Flow<PagingData<PostEntity>>): LazyPagingItems<PostEntity> {
+    val distinct = remember(flow) {
+        flow.map { data ->
+            val seen = HashSet<String>()
+            data.filter { seen.add(it.id) }
+        }
+    }
+    return distinct.collectAsLazyPagingItems()
+}
 
 /** Standard post callbacks: open details, media, links, and the post action sheet. */
 @Composable
@@ -54,9 +74,9 @@ fun rememberPostCallbacks(
                 links.openPost(post.permalink)
             }
 
-            override fun onMedia(post: PostEntity) {
+            override fun onMedia(post: PostEntity, index: Int) {
                 viewModel.insertPostInHistory(post.id)
-                if (post.gallery.isNotEmpty()) links.openGallery(post.gallery)
+                if (post.gallery.isNotEmpty()) links.openGallery(post.gallery, index)
                 else links.openMedia(post.mediaUrl, post.mediaType)
             }
 
@@ -127,7 +147,9 @@ fun PostFeed(
             }
             items(
                 count = posts.itemCount,
-                key = { index -> posts.peek(index)?.let { "${it.id}-$index" } ?: index },
+                // Stable per-post keys keep scroll position and skip work when pages load;
+                // rememberPostItems drops the duplicates Reddit returns across pages.
+                key = { index -> posts.peek(index)?.id ?: "placeholder-$index" },
                 contentType = { "post" },
             ) { index ->
                 posts[index]?.let { post ->

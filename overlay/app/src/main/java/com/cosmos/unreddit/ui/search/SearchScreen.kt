@@ -52,6 +52,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.cosmos.unreddit.R
 import com.cosmos.unreddit.data.model.User
 import com.cosmos.unreddit.data.model.db.SubredditEntity
+import com.cosmos.unreddit.ui.common.compose.rememberPostItems
 import com.cosmos.unreddit.ui.common.compose.BackButton
 import com.cosmos.unreddit.ui.common.compose.EmptyState
 import com.cosmos.unreddit.ui.common.compose.ErrorState
@@ -164,7 +165,7 @@ fun SearchScreen(initialQuery: String, onBack: () -> Unit, viewModel: SearchView
         }
         when (tab) {
             SearchTab.POSTS -> PostFeed(
-                posts = viewModel.postDataFlow.collectAsLazyPagingItems(),
+                posts = rememberPostItems(viewModel.postDataFlow),
                 preferences = preferences,
                 viewModel = viewModel,
                 modifier = modifier,

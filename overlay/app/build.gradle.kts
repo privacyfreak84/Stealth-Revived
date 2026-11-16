@@ -67,6 +67,15 @@ android {
             applicationIdSuffix = ".dev"
             isDebuggable = true
         }
+        // Release-speed build for testing: R8-optimised and not debuggable (Compose runs far
+        // slower in debug builds), signed with the debug key and installable next to release.
+        create("preview") {
+            initWith(getByName("release"))
+            applicationIdSuffix = ".preview"
+            versionNameSuffix = "-preview"
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += listOf("release")
+        }
     }
 
     buildFeatures {
@@ -171,6 +180,8 @@ dependencies {
     implementation("org.jsoup:jsoup:${Dependencies.Versions.jsoup}")
 
     testImplementation("junit:junit:${Dependencies.Versions.jUnit}")
+    // Real org.json for host-JVM tests of the transport's JSON adapters.
+    testImplementation("org.json:json:20250517")
 
     androidTestImplementation("androidx.test:runner:${Dependencies.Versions.testRunner}")
     androidTestImplementation("androidx.test.ext:junit:${Dependencies.Versions.test}")

@@ -60,6 +60,7 @@ import coil.compose.AsyncImage
 import com.cosmos.unreddit.R
 import com.cosmos.unreddit.data.model.Resource
 import com.cosmos.unreddit.data.model.db.SubredditEntity
+import com.cosmos.unreddit.ui.common.compose.rememberPostItems
 import com.cosmos.unreddit.ui.common.compose.BackButton
 import com.cosmos.unreddit.ui.common.compose.ErrorState
 import com.cosmos.unreddit.ui.common.compose.LocalLinkActions
@@ -84,7 +85,7 @@ fun SubredditScreen(name: String, onBack: () -> Unit, viewModel: SubredditViewMo
     val subscribed by viewModel.isSubscribed.collectAsStateWithLifecycle()
     val sorting by viewModel.sorting.collectAsStateWithLifecycle()
     val preferences by viewModel.contentPreferences.collectAsStateWithLifecycle(DefaultContentPreferences)
-    val posts = viewModel.postDataFlow.collectAsLazyPagingItems()
+    val posts = rememberPostItems(viewModel.postDataFlow)
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     var showSort by rememberSaveable { mutableStateOf(false) }
     var showAbout by rememberSaveable { mutableStateOf(false) }
@@ -268,7 +269,7 @@ fun SubredditSearchScreen(name: String, onBack: () -> Unit, viewModel: Subreddit
             )
         } else {
             PostFeed(
-                posts = viewModel.postDataFlow.collectAsLazyPagingItems(),
+                posts = rememberPostItems(viewModel.postDataFlow),
                 preferences = preferences,
                 viewModel = viewModel,
                 modifier = Modifier.padding(top = padding.calculateTopPadding()),

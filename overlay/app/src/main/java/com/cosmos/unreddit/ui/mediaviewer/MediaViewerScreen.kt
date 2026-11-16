@@ -14,7 +14,10 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.calculatePan
+import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -61,6 +64,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChanged
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -99,7 +105,10 @@ fun MediaViewerScreen(
     val links = LocalLinkActions.current
     LaunchedEffect(request) {
         when (request) {
-            is MediaRequest.Gallery -> viewModel.setMedia(request.items)
+            is MediaRequest.Gallery -> {
+                viewModel.setSelectedPage(request.start.coerceIn(0, (request.items.size - 1).coerceAtLeast(0)))
+                viewModel.setMedia(request.items)
+            }
             is MediaRequest.Link -> viewModel.loadMedia(request.link, request.type)
             // The request lives in memory; after process death there is nothing to show.
             null -> onClose()
@@ -266,14 +275,24 @@ private fun MediaToolbar(
     }
 }
 
-/** Pinch and double-tap zoomable image. */
+/**
+ * Pinch and double-tap zoomable image. One-finger drags at 1x are left unconsumed so the
+ * gallery pager can swipe; panning only takes over once the image is zoomed.
+ */
 @Composable
 private fun ZoomableImage(url: String, onTap: () -> Unit, onZoomChanged: (Boolean) -> Unit) {
     var scale by remember { mutableFloatStateOf(1f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
+    var bounds by remember { mutableStateOf(IntSize.Zero) }
+    fun clamp(value: Offset, s: Float): Offset {
+        val maxX = bounds.width * (s - 1f) / 2f
+        val maxY = bounds.height * (s - 1f) / 2f
+        return Offset(value.x.coerceIn(-maxX, maxX), value.y.coerceIn(-maxY, maxY))
+    }
     Box(
         Modifier
             .fillMaxSize()
+            .onSizeChanged { bounds = it }
             .pointerInput(Unit) {
                 detectTapGestures(
                     onTap = { onTap() },
@@ -282,20 +301,26 @@ private fun ZoomableImage(url: String, onTap: () -> Unit, onZoomChanged: (Boolea
                             scale = 1f; offset = Offset.Zero
                         } else {
                             scale = 2.5f
-                            offset = (Offset(size.width / 2f, size.height / 2f) - tap) * 1.5f
+                            offset = clamp((Offset(size.width / 2f, size.height / 2f) - tap) * 1.5f, scale)
                         }
                         onZoomChanged(scale > 1f)
                     },
                 )
             }
             .pointerInput(Unit) {
-                detectTransformGestures { _, pan, zoom, _ ->
-                    val newScale = (scale * zoom).coerceIn(1f, 6f)
-                    if (newScale > 1f || scale > 1f) {
-                        scale = newScale
-                        offset = if (scale == 1f) Offset.Zero else offset + pan
-                        onZoomChanged(scale > 1f)
-                    }
+                awaitEachGesture {
+                    awaitFirstDown(requireUnconsumed = false)
+                    do {
+                        val event = awaitPointerEvent()
+                        val fingers = event.changes.count { it.pressed }
+                        if (fingers > 1 || scale > 1f) {
+                            val newScale = (scale * event.calculateZoom()).coerceIn(1f, 6f)
+                            offset = if (newScale == 1f) Offset.Zero else clamp(offset + event.calculatePan(), newScale)
+                            scale = newScale
+                            onZoomChanged(scale > 1f)
+                            event.changes.forEach { if (it.positionChanged()) it.consume() }
+                        }
+                    } while (event.changes.any { it.pressed })
                 }
             },
         contentAlignment = Alignment.Center,

@@ -221,6 +221,8 @@ fun RichText(
     AndroidView(
         modifier = modifier,
         factory = { context -> RedditView(context) },
+        // Lets lazy lists reuse the view instead of inflating a new one per item.
+        onReset = { view -> view.tag = null },
         update = { view ->
             view.setOnLinkClickListener(object : RedditView.OnLinkClickListener {
                 override fun onLinkClick(link: String) = links.handleLink(link)

@@ -39,8 +39,16 @@ jobs:
           yes | "$SDKMANAGER" --sdk_root="$ANDROID_HOME" --licenses
           "$SDKMANAGER" --sdk_root="$ANDROID_HOME" "platforms;android-37.0" "build-tools;37.0.0"
 
-      - name: Run unit tests and build debug APK
-        run: ./scripts/build.sh testDebugUnitTest assembleDebug
+      - name: Run unit tests and build debug and preview APKs
+        run: ./scripts/build.sh testDebugUnitTest assembleDebug assemblePreview
+
+      # Release-speed build signed with the CI debug key: use this one to judge smoothness.
+      - name: Upload preview APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: stealth-revived-preview
+          path: android/app/build/outputs/apk/preview/*.apk
+          if-no-files-found: error
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4

@@ -45,6 +45,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.cosmos.unreddit.R
 import com.cosmos.unreddit.data.model.db.Profile
 import com.cosmos.unreddit.data.model.preferences.ContentPreferences
+import com.cosmos.unreddit.ui.common.compose.rememberPostItems
 import com.cosmos.unreddit.ui.common.compose.LocalLinkActions
 import com.cosmos.unreddit.ui.common.compose.PostFeed
 import com.cosmos.unreddit.ui.common.compose.SortContext
@@ -66,7 +67,7 @@ private val BrandFont = FontFamily(Font(R.font.stealth_medium))
 @Composable
 fun HomeScreen(viewModel: PostListViewModel = hiltViewModel()) {
     val links = LocalLinkActions.current
-    val posts = viewModel.postDataFlow.collectAsLazyPagingItems()
+    val posts = rememberPostItems(viewModel.postDataFlow)
     val preferences by viewModel.contentPreferences.collectAsStateWithLifecycle(DefaultContentPreferences)
     val sorting by viewModel.sorting.collectAsStateWithLifecycle()
     val profile by viewModel.currentProfile.collectAsStateWithLifecycle(initialValue = null)

@@ -65,8 +65,8 @@ class LinkActions(
     fun openMedia(link: String, type: MediaType) =
         navigate(Routes.media(NavHandoff.putMedia(MediaRequest.Link(link, type))))
 
-    fun openGallery(items: List<GalleryMedia>) =
-        navigate(Routes.media(NavHandoff.putMedia(MediaRequest.Gallery(items))))
+    fun openGallery(items: List<GalleryMedia>, start: Int = 0) =
+        navigate(Routes.media(NavHandoff.putMedia(MediaRequest.Gallery(items, start))))
 
     fun handleLink(link: String) {
         when (val type = LinkUtil.getLinkType(link)) {

@@ -37,7 +37,8 @@ object Dependencies {
 
         const val exoPlayer = "2.18.1"
 
-        const val retrofit = "2.9.0"
+        // 2.11 ships the keep rules R8 full mode (AGP 9 default) needs for suspend APIs.
+        const val retrofit = "2.11.0"
 
         const val moshi = "1.15.2"
 

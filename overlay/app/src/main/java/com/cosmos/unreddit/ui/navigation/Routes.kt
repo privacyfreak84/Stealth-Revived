@@ -65,7 +65,7 @@ object NavHandoff {
 
 sealed interface MediaRequest {
     data class Link(val link: String, val type: MediaType) : MediaRequest
-    data class Gallery(val items: List<GalleryMedia>) : MediaRequest
+    data class Gallery(val items: List<GalleryMedia>, val start: Int = 0) : MediaRequest
 }
 
 /** Maps Reddit web links onto in-app routes, or returns null when the app can't show them. */

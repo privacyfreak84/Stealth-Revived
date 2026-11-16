@@ -105,6 +105,7 @@ fun PostDetailsScreen(
     val comments by viewModel.comments.collectAsStateWithLifecycle()
     val sorting by viewModel.sorting.collectAsStateWithLifecycle()
     val isSingleThread by viewModel.singleThread.collectAsStateWithLifecycle()
+    val preferences by viewModel.contentPreferences.collectAsStateWithLifecycle(DefaultContentPreferences)
     val post = (postResource as? Resource.Success)?.data ?: initialPost
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     var showSort by rememberSaveable { mutableStateOf(false) }
@@ -167,7 +168,7 @@ fun PostDetailsScreen(
         ) {
             item(key = "post") {
                 Column {
-                    PostCard(post, DefaultContentPreferences.copy(showNsfwPreview = true, showSpoilerPreview = true), callbacks, expanded = true)
+                    PostCard(post, preferences, callbacks, expanded = true)
                     if (post.type == PostType.TEXT && post.selfRedditText.isNotEmpty()) {
                         RichText(
                             post.selfRedditText,

@@ -1,6 +1,11 @@
 package com.cosmos.unreddit.ui.common.compose
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import com.cosmos.unreddit.data.model.GalleryMedia
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -25,7 +30,6 @@ import androidx.compose.material.icons.automirrored.rounded.Comment
 import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.BookmarkBorder
-import androidx.compose.material.icons.rounded.Collections
 import androidx.compose.material.icons.rounded.Link
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.PlayArrow
@@ -53,7 +57,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -71,7 +74,8 @@ import com.cosmos.unreddit.data.model.preferences.ContentPreferences
 /** Callbacks a post card can raise. */
 interface PostCallbacks {
     fun onOpen(post: PostEntity)
-    fun onMedia(post: PostEntity)
+    /** Opens the media viewer, at [index] for galleries. */
+    fun onMedia(post: PostEntity, index: Int = 0)
     fun onLink(post: PostEntity)
     fun onSubreddit(post: PostEntity)
     fun onUser(post: PostEntity)
@@ -218,63 +222,138 @@ private fun PostContent(
 
 @Composable
 private fun MediaPreview(post: PostEntity, preferences: ContentPreferences, callbacks: PostCallbacks) {
-    val image = post.preview ?: return
+    val gallery = post.gallery
+    val cover = post.preview ?: gallery.firstOrNull { it.type == GalleryMedia.Type.IMAGE }?.url ?: return
     var revealed by rememberSaveable(post.id) { mutableStateOf(post.shouldShowPreview(preferences)) }
-    Box(
-        Modifier
-            .padding(horizontal = 12.dp)
-            .padding(bottom = 8.dp)
-            .fillMaxWidth()
-            .heightIn(max = 420.dp)
-            .aspectRatio(4f / 3f)
-            .clip(MaterialTheme.shapes.large)
-            .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-            .clickable { if (revealed) callbacks.onMedia(post) else revealed = true },
-        contentAlignment = Alignment.Center,
-    ) {
-        AsyncImage(
-            model = image,
-            contentDescription = post.title,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize().then(if (revealed) Modifier else Modifier.blur(32.dp)),
+    val frame = Modifier
+        .padding(horizontal = 12.dp)
+        .padding(bottom = 8.dp)
+        .fillMaxWidth()
+        .heightIn(max = 420.dp)
+        .aspectRatio(4f / 3f)
+        .clip(MaterialTheme.shapes.large)
+        .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+    when {
+        // Hidden previews are never downloaded: cheaper while scrolling, and private on every
+        // Android version (Modifier.blur is a no-op before Android 12).
+        !revealed -> Box(frame.clickable { revealed = true }, contentAlignment = Alignment.Center) {
+            HiddenMediaLabel(post.isOver18)
+        }
+        gallery.size > 1 -> GalleryCarousel(post, gallery, frame, callbacks)
+        else -> Box(frame.clickable { callbacks.onMedia(post) }, contentAlignment = Alignment.Center) {
+            AsyncImage(
+                model = cover,
+                contentDescription = post.title,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize(),
+            )
+            if (post.type == PostType.VIDEO || post.mediaType.isVideo()) PlayBadge()
+        }
+    }
+}
+
+@Composable
+private fun HiddenMediaLabel(nsfw: Boolean) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Surface(
+            shape = MaterialShapes.Cookie9Sided.toShape(),
+            color = if (nsfw) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = if (nsfw) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+            modifier = Modifier.size(64.dp),
+        ) {
+            Box(contentAlignment = Alignment.Center) { Icon(Icons.Rounded.VisibilityOff, null) }
+        }
+        Spacer(Modifier.height(10.dp))
+        Text(
+            stringResource(if (nsfw) R.string.flair_nsfw else R.string.flair_spoiler),
+            style = MaterialTheme.typography.titleSmallEmphasized,
         )
-        if (!revealed) {
-            Surface(
-                shape = RoundedCornerShape(50),
-                color = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.85f),
-                contentColor = MaterialTheme.colorScheme.inverseOnSurface,
+        Text(
+            stringResource(R.string.action_reveal),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun PlayBadge() {
+    Surface(
+        shape = MaterialShapes.Cookie9Sided.toShape(),
+        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.92f),
+        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        modifier = Modifier.size(64.dp),
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Icon(Icons.Rounded.PlayArrow, stringResource(R.string.action_play), Modifier.size(32.dp))
+        }
+    }
+}
+
+/** Swipeable gallery inside the card, with Expressive page dots; tap opens that page. */
+@Composable
+private fun GalleryCarousel(
+    post: PostEntity,
+    gallery: List<GalleryMedia>,
+    frame: Modifier,
+    callbacks: PostCallbacks,
+) {
+    val pager = rememberPagerState { gallery.size }
+    Box(frame) {
+        HorizontalPager(state = pager, modifier = Modifier.fillMaxSize(), key = { it }) { page ->
+            val item = gallery[page]
+            Box(
+                Modifier.fillMaxSize().clickable { callbacks.onMedia(post, page) },
+                contentAlignment = Alignment.Center,
             ) {
-                Row(
-                    Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(Icons.Rounded.VisibilityOff, null, Modifier.size(18.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text(stringResource(R.string.action_reveal), style = MaterialTheme.typography.labelLarge)
-                }
-            }
-        } else if (post.type == PostType.VIDEO || post.mediaType.isVideo()) {
-            Surface(
-                shape = MaterialShapes.Cookie9Sided.toShape(),
-                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.92f),
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                modifier = Modifier.size(64.dp),
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(Icons.Rounded.PlayArrow, stringResource(R.string.action_play), Modifier.size(32.dp))
+                if (item.type == GalleryMedia.Type.IMAGE) {
+                    AsyncImage(
+                        model = item.url,
+                        contentDescription = item.description ?: post.title,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                } else {
+                    PlayBadge()
                 }
             }
         }
-        if (revealed && post.gallery.size > 1) {
-            Tag(
-                stringResource(R.string.label_gallery_count, post.gallery.size),
-                modifier = Modifier.align(Alignment.TopEnd).padding(10.dp),
-                container = Color.Black.copy(alpha = 0.6f),
-                content = Color.White,
+        Tag(
+            "${pager.currentPage + 1}/${gallery.size}",
+            modifier = Modifier.align(Alignment.TopEnd).padding(10.dp),
+            container = Color.Black.copy(alpha = 0.6f),
+            content = Color.White,
+        )
+        PageDots(
+            count = gallery.size,
+            current = pager.currentPage,
+            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 10.dp),
+        )
+    }
+}
+
+@Composable
+private fun PageDots(count: Int, current: Int, modifier: Modifier = Modifier) {
+    Row(
+        modifier
+            .clip(RoundedCornerShape(50))
+            .background(Color.Black.copy(alpha = 0.45f))
+            .padding(horizontal = 8.dp, vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(5.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        val visible = count.coerceAtMost(8)
+        val offset = (current - visible / 2).coerceIn(0, (count - visible).coerceAtLeast(0))
+        repeat(visible) { i ->
+            val selected = i + offset == current
+            val width by animateDpAsState(
+                if (selected) 18.dp else 6.dp, MaterialTheme.motionScheme.fastSpatialSpec(), label = "dot"
             )
-            Icon(
-                Icons.Rounded.Collections, null, tint = Color.White,
-                modifier = Modifier.align(Alignment.BottomEnd).padding(10.dp),
+            Box(
+                Modifier
+                    .size(width = width, height = 6.dp)
+                    .clip(RoundedCornerShape(50))
+                    .background(Color.White.copy(alpha = if (selected) 1f else 0.55f))
             )
         }
     }

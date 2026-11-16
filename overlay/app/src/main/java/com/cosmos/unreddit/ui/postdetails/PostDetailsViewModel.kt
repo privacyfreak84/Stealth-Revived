@@ -8,6 +8,7 @@ import com.cosmos.unreddit.data.model.Resource
 import com.cosmos.unreddit.data.model.Sort
 import com.cosmos.unreddit.data.model.Sorting
 import com.cosmos.unreddit.data.model.db.PostEntity
+import com.cosmos.unreddit.data.model.preferences.ContentPreferences
 import com.cosmos.unreddit.data.remote.api.reddit.model.MoreChildren
 import com.cosmos.unreddit.data.repository.PostListRepository
 import com.cosmos.unreddit.data.repository.PreferencesRepository
@@ -41,12 +42,14 @@ data class CommentsUi(val resource: Resource<List<Comment>>, val revision: Int =
 
 @HiltViewModel
 class PostDetailsViewModel @Inject constructor(
-    preferencesRepository: PreferencesRepository,
+    private val preferences: PreferencesRepository,
     private val repository: PostListRepository,
     private val postMapper: PostMapper2,
     private val commentMapper: CommentMapper2,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
-) : BaseViewModel(preferencesRepository, repository) {
+) : BaseViewModel(preferences, repository) {
+
+    val contentPreferences: Flow<ContentPreferences> = preferences.getContentPreferences()
 
     private val _sorting = MutableStateFlow(DEFAULT_SORTING)
     val sorting: StateFlow<Sorting> = _sorting

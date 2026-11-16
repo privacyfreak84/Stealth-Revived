@@ -42,6 +42,12 @@ The overlay can only add or replace upstream files, so `overlay-removed.txt` lis
 upstream fragments, adapters, widgets and XML layouts that `scripts/build.sh` deletes
 after copying the overlay.
 
+## Testing builds
+
+CI publishes two APKs. `stealth-revived-preview` is R8-optimised and not debuggable
+(signed with the CI debug key, app id suffix `.preview`). Use it to judge smoothness, because
+Compose runs far slower in debug builds. `stealth-revived-debug` is for logs and debugging.
+
 ## Toolchain
 
 Gradle 9.6.1, AGP 9.5.1 with built-in Kotlin, Kotlin 2.3.21, compileSdk 37,
