@@ -117,6 +117,16 @@ class GraphQlRedditSource @Inject constructor(
             ?: throw IOException("Reddit returned an unreadable listing")
     }
 
+    /**
+     * Fetches a REST listing through the same request path as the feed. The legacy Retrofit
+     * client turns `/search` into `/search/.json`, which Reddit answers with HTTP 403.
+     */
+    private suspend fun restListing(url: String): Listing = withContext(ioDispatcher) {
+        val json = requestJson(url)
+        listingAdapter.fromJson(json.toString())
+            ?: throw IOException("Reddit returned an unreadable listing")
+    }
+
     private suspend fun graphQlSubreddit(
         subreddit: String,
         sort: Sort,
@@ -153,7 +163,7 @@ class GraphQlRedditSource @Inject constructor(
     ): Listing = routed(
         "subreddit search",
         after,
-        rest = { fallback.searchInSubreddit(subreddit, query, sort, timeSorting, after) },
+        rest = { restListing(restSearchUrl("/r/$subreddit/search.json", query, sort, timeSorting, after, restrictToSubreddit = true)) },
         graphQl = { searchPosts(query + " subreddit:" + subreddit, sort, timeSorting, after) },
     )
 
@@ -165,7 +175,7 @@ class GraphQlRedditSource @Inject constructor(
     ): Listing = routed(
         "post search",
         after,
-        rest = { fallback.searchPost(query, sort, timeSorting, after) },
+        rest = { restListing(restSearchUrl("/search.json", query, sort, timeSorting, after, type = "link")) },
         graphQl = { searchPosts(query, sort, timeSorting, after) },
     )
 
@@ -177,7 +187,7 @@ class GraphQlRedditSource @Inject constructor(
     ): Listing = routed(
         "community search",
         after,
-        rest = { fallback.searchSubreddit(query, sort, timeSorting, after) },
+        rest = { restListing(restSearchUrl("/subreddits/search.json", query, null, null, after)) },
         graphQl = { graphQlSearchSubreddit(query, sort, timeSorting, after) },
     )
 
@@ -221,7 +231,7 @@ class GraphQlRedditSource @Inject constructor(
     ): Listing = routed(
         "people search",
         after,
-        rest = { fallback.searchUser(query, sort, timeSorting, after) },
+        rest = { restListing(restSearchUrl("/users/search.json", query, null, null, after)) },
         graphQl = { graphQlSearchUser(query, sort, timeSorting, after) },
     )
 
@@ -1134,6 +1144,33 @@ class GraphQlRedditSource @Inject constructor(
             // oauth.reddit.com; upstream's RedditPathInterceptor sends it as %2B too.
             val name = subreddit.split('+').joinToString("%2B") { java.net.URLEncoder.encode(it, "UTF-8") }
             return "$OAUTH_BASE/r/$name/$restSort.json?$query"
+        }
+
+        /**
+         * REST search URL in the shape Redlib uses: `<path>.json?q=…&include_over_18=on`.
+         * [path] is relative to oauth.reddit.com and already ends in `.json`.
+         */
+        internal fun restSearchUrl(
+            path: String,
+            query: String,
+            sort: Sort?,
+            timeSorting: TimeSorting?,
+            after: String?,
+            type: String? = null,
+            restrictToSubreddit: Boolean = false,
+        ): String {
+            val params = buildList {
+                add("q=" + java.net.URLEncoder.encode(query, "UTF-8"))
+                type?.let { add("type=$it") }
+                if (restrictToSubreddit) add("restrict_sr=on")
+                sort?.let { add("sort=" + it.type) }
+                timeSorting?.let { add("t=" + it.type) }
+                add("include_over_18=on")
+                add("raw_json=1")
+                add("limit=$PAGE_SIZE")
+                after?.let { add("after=" + java.net.URLEncoder.encode(it, "UTF-8")) }
+            }.joinToString("&")
+            return "$OAUTH_BASE$path?$params"
         }
 
         /** Replaces GraphQL-derived posts with REST /by_id data, keeping feed order. */

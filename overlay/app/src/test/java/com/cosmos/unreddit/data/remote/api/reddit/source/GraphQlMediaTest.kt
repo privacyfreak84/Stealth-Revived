@@ -127,4 +127,20 @@ class GraphQlMediaTest {
         }
         assertEquals("/r/pics%2Baww/new.json", url.encodedPath)
     }
+
+    @Test
+    fun restSearchUrlUsesRedlibShape() {
+        assertEquals(
+            "https://oauth.reddit.com/search.json?q=red+panda&type=link&sort=top&t=week&include_over_18=on&raw_json=1&limit=25&after=t3_x",
+            GraphQlRedditSource.restSearchUrl("/search.json", "red panda", Sort.TOP, TimeSorting.WEEK, "t3_x", type = "link")
+        )
+        assertEquals(
+            "https://oauth.reddit.com/r/pics/search.json?q=cat&restrict_sr=on&sort=relevance&include_over_18=on&raw_json=1&limit=25",
+            GraphQlRedditSource.restSearchUrl("/r/pics/search.json", "cat", Sort.RELEVANCE, null, null, restrictToSubreddit = true)
+        )
+        assertEquals(
+            "https://oauth.reddit.com/subreddits/search.json?q=art&include_over_18=on&raw_json=1&limit=25",
+            GraphQlRedditSource.restSearchUrl("/subreddits/search.json", "art", null, null, null)
+        )
+    }
 }
