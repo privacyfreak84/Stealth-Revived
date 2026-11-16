@@ -3,10 +3,9 @@
     <string name="brand_app_name">Stealth Revived</string>
     <string name="brand_tagline">Your feed. Your way.</string>
     <string name="brand_appearance">Appearance</string>
-    <string name="brand_navigation_layout">Navigation layout</string>
     <string name="brand_color_scheme_title">Color scheme</string>
-    <string name="brand_navigation_layout_title">Navigation layout</string>
     <string name="brand_version_name">Revived edition</string>
     <string name="brand_post_actions">Post actions</string>
     <string name="brand_post_save">Save post</string>
+    <string name="brand_color_scheme_dynamic">Wallpaper colors (Material You)</string>
 </resources>

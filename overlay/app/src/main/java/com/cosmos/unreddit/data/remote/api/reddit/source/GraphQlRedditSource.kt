@@ -11,12 +11,15 @@ import com.cosmos.unreddit.data.remote.api.reddit.model.Listing
 import com.cosmos.unreddit.data.remote.api.reddit.model.ListingJsonAdapter
 import com.cosmos.unreddit.data.remote.api.reddit.model.MoreChildren
 import com.cosmos.unreddit.data.remote.api.reddit.model.MoreChildrenJsonAdapter
+import com.cosmos.unreddit.data.repository.PreferencesRepository
 import com.cosmos.unreddit.di.DispatchersModule.IoDispatcher
 import com.cosmos.unreddit.di.NetworkModule.GenericOkHttp
 import com.cosmos.unreddit.di.NetworkModule.RedditMoshi
+import com.cosmos.unreddit.util.DiagnosticLog
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -43,6 +46,7 @@ class GraphQlRedditSource @Inject constructor(
     @RedditMoshi moshi: Moshi,
     @GenericOkHttp private val client: OkHttpClient,
     private val oauthManager: RedditOAuthManager,
+    private val preferencesRepository: PreferencesRepository,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : BaseRedditSource by fallback {
 
@@ -50,6 +54,80 @@ class GraphQlRedditSource @Inject constructor(
     private val moreChildrenAdapter = MoreChildrenJsonAdapter(moshi)
 
     override suspend fun getSubreddit(
+        subreddit: String,
+        sort: Sort,
+        timeSorting: TimeSorting?,
+        after: String?
+    ): Listing {
+        // The home feed pages several subreddit groups at once; a group that has run out
+        // carries a blank cursor and must stay empty rather than restart from page one.
+        if (after != null && after.isBlank()) return listing(JSONArray(), null)
+        return routed(
+            "subreddit feed",
+            after,
+            rest = { restSubreddit(subreddit, sort, timeSorting, after) },
+            graphQl = { graphQlSubreddit(subreddit, sort, timeSorting, after) },
+        )
+    }
+
+    private suspend fun showNsfw(): Boolean = try {
+        preferencesRepository.getContentPreferences().first().showNsfw
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        false
+    }
+
+    /**
+     * Picks REST or GraphQL for a paged request. With NSFW on, REST goes first because the
+     * logged-out GraphQL session hides mature posts; later pages stay on whichever backend
+     * produced their cursor.
+     */
+    private suspend fun routed(
+        label: String,
+        after: String?,
+        rest: suspend () -> Listing,
+        graphQl: suspend () -> Listing,
+    ): Listing = when (feedRoute(after, showNsfw())) {
+        FeedRoute.REST_ONLY -> rest()
+        FeedRoute.REST_THEN_GRAPHQL -> try {
+            rest()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.w(TAG, "REST $label failed; using GraphQL (NSFW posts may be hidden)", e)
+            DiagnosticLog.write("REST $label failed, NSFW posts may be hidden: $e")
+            graphQl()
+        }
+        FeedRoute.GRAPHQL -> graphQl()
+    }
+
+    /**
+     * Reddit's REST listing. Unlike the GraphQL feed, which applies the logged-out session's
+     * mature-content filter, it returns NSFW posts, and it carries full media data.
+     */
+    private suspend fun restSubreddit(
+        subreddit: String,
+        sort: Sort,
+        timeSorting: TimeSorting?,
+        after: String?
+    ): Listing = withContext(ioDispatcher) {
+        val json = requestJson(restFeedUrl(subreddit, sort, timeSorting, after))
+        listingAdapter.fromJson(json.toString())
+            ?: throw IOException("Reddit returned an unreadable listing")
+    }
+
+    /**
+     * Fetches a REST listing through the same request path as the feed. The legacy Retrofit
+     * client turns `/search` into `/search/.json`, which Reddit answers with HTTP 403.
+     */
+    private suspend fun restListing(url: String): Listing = withContext(ioDispatcher) {
+        val json = requestJson(url)
+        listingAdapter.fromJson(json.toString())
+            ?: throw IOException("Reddit returned an unreadable listing")
+    }
+
+    private suspend fun graphQlSubreddit(
         subreddit: String,
         sort: Sort,
         timeSorting: TimeSorting?,
@@ -82,16 +160,38 @@ class GraphQlRedditSource @Inject constructor(
         sort: Sort?,
         timeSorting: TimeSorting?,
         after: String?
-    ): Listing = searchPosts(query + " subreddit:" + subreddit, sort, timeSorting, after)
+    ): Listing = routed(
+        "subreddit search",
+        after,
+        rest = { restListing(restSearchUrl("/r/$subreddit/search.json", query, sort, timeSorting, after, restrictToSubreddit = true)) },
+        graphQl = { searchPosts(query + " subreddit:" + subreddit, sort, timeSorting, after) },
+    )
 
     override suspend fun searchPost(
         query: String,
         sort: Sort?,
         timeSorting: TimeSorting?,
         after: String?
-    ): Listing = searchPosts(query, sort, timeSorting, after)
+    ): Listing = routed(
+        "post search",
+        after,
+        rest = { restListing(restSearchUrl("/search.json", query, sort, timeSorting, after, type = "link")) },
+        graphQl = { searchPosts(query, sort, timeSorting, after) },
+    )
 
     override suspend fun searchSubreddit(
+        query: String,
+        sort: Sort?,
+        timeSorting: TimeSorting?,
+        after: String?
+    ): Listing = routed(
+        "community search",
+        after,
+        rest = { restListing(restSearchUrl("/subreddits/search.json", query, null, null, after)) },
+        graphQl = { graphQlSearchSubreddit(query, sort, timeSorting, after) },
+    )
+
+    private suspend fun graphQlSearchSubreddit(
         query: String,
         sort: Sort?,
         timeSorting: TimeSorting?,
@@ -124,6 +224,18 @@ class GraphQlRedditSource @Inject constructor(
     )
 
     override suspend fun searchUser(
+        query: String,
+        sort: Sort?,
+        timeSorting: TimeSorting?,
+        after: String?
+    ): Listing = routed(
+        "people search",
+        after,
+        rest = { restListing(restSearchUrl("/users/search.json", query, null, null, after)) },
+        graphQl = { graphQlSearchUser(query, sort, timeSorting, after) },
+    )
+
+    private suspend fun graphQlSearchUser(
         query: String,
         sort: Sort?,
         timeSorting: TimeSorting?,
@@ -247,7 +359,7 @@ class GraphQlRedditSource @Inject constructor(
         }
     )
 
-    private fun postListing(connection: JSONObject): Listing {
+    private suspend fun postListing(connection: JSONObject): Listing {
         val edges = connection.optJSONArray("edges") ?: JSONArray()
         val children = JSONArray()
         for (index in 0 until edges.length()) {
@@ -255,7 +367,30 @@ class GraphQlRedditSource @Inject constructor(
             val post = node.optJSONObject("postInfo") ?: node
             if (post.has("id")) children.put(postChild(post))
         }
-        return listing(children, pageCursor(connection))
+        return listing(enrichWithRest(children), pageCursor(connection))
+    }
+
+    /**
+     * GraphQL feed posts are adapted from a reduced shape. One REST /by_id request swaps in
+     * Reddit's full post data (galleries, previews, video, crossposts) for the whole page;
+     * if it fails, the GraphQL-derived posts are kept.
+     */
+    private suspend fun enrichWithRest(children: JSONArray): JSONArray {
+        val names = (0 until children.length()).mapNotNull {
+            children.optJSONObject(it)?.optJSONObject("data")?.optString("name")?.takeIf { name ->
+                name.startsWith("t3_")
+            }
+        }
+        if (names.isEmpty()) return children
+        return try {
+            val json = requestJson(OAUTH_BASE + "/by_id/" + names.joinToString(",") + ".json?raw_json=1")
+            mergeById(children, json)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.w(TAG, "Could not load full post data; using GraphQL media", e)
+            children
+        }
     }
 
     private fun postChild(post: JSONObject): JSONObject {
@@ -292,7 +427,7 @@ class GraphQlRedditSource @Inject constructor(
             .put("suggested_sort", "confidence")
             .put("archived", post.optBoolean("isArchived", false))
             .put("over_18", post.optBoolean("isNsfw", false))
-            .put("preview", JSONObject.NULL)
+            .put("preview", graphQlPreview(post) ?: JSONObject.NULL)
             .put("all_awardings", JSONArray())
             .put("spoiler", post.optBoolean("isSpoiler", false))
             .put("locked", post.optBoolean("isLocked", false))
@@ -303,10 +438,15 @@ class GraphQlRedditSource @Inject constructor(
             .put("stickied", post.optBoolean("isStickied", false))
             .put("url", url)
             .put("created_utc", epochSeconds(post.optString("createdAt")))
-            .put("media", JSONObject.NULL)
+            .put("media", graphQlRedditVideo(media) ?: JSONObject.NULL)
             .put("media_metadata", JSONObject.NULL)
             .put("is_gallery", false)
             .put("is_video", media.optJSONObject("video") != null || media.optJSONObject("streaming") != null)
+        graphQlGallery(post)?.let { (galleryData, metadata) ->
+            data.put("is_gallery", true)
+                .put("gallery_data", galleryData)
+                .put("media_metadata", metadata)
+        }
         return JSONObject().put("kind", "t3").put("data", data)
     }
 
@@ -963,6 +1103,177 @@ class GraphQlRedditSource @Inject constructor(
                 it.matches(Regex("[A-Za-z0-9]+"))
             }
             return PostReference(id ?: throw IOException("Invalid Reddit post permalink"), null)
+        }
+
+        /** Which backend a subreddit feed page should come from. */
+        internal enum class FeedRoute { GRAPHQL, REST_THEN_GRAPHQL, REST_ONLY }
+
+        /**
+         * Pages must keep using the backend that produced their cursor: REST cursors are
+         * post fullnames (t3_...), GraphQL cursors are opaque.
+         */
+        private val REST_CURSOR = Regex("^t[1-6]_[A-Za-z0-9]+$")
+
+        internal fun feedRoute(after: String?, showNsfw: Boolean): FeedRoute = when {
+            after != null && REST_CURSOR.matches(after) -> FeedRoute.REST_ONLY
+            after != null -> FeedRoute.GRAPHQL
+            showNsfw -> FeedRoute.REST_THEN_GRAPHQL
+            else -> FeedRoute.GRAPHQL
+        }
+
+        internal fun restFeedUrl(
+            subreddit: String,
+            sort: Sort,
+            timeSorting: TimeSorting?,
+            after: String?
+        ): String {
+            val restSort = when (sort) {
+                Sort.NEW, Sort.TOP, Sort.RISING, Sort.CONTROVERSIAL -> sort.type
+                else -> "hot"
+            }
+            val query = buildList {
+                add("raw_json=1")
+                add("limit=$PAGE_SIZE")
+                add("include_over_18=1")
+                after?.let { add("after=$it") }
+                if (restSort == "top" || restSort == "controversial") {
+                    add("t=" + (timeSorting ?: TimeSorting.DAY).type)
+                }
+            }.joinToString("&")
+            // A literal '+' between subreddit names is not read as a multireddit by
+            // oauth.reddit.com; upstream's RedditPathInterceptor sends it as %2B too.
+            val name = subreddit.split('+').joinToString("%2B") { java.net.URLEncoder.encode(it, "UTF-8") }
+            return "$OAUTH_BASE/r/$name/$restSort.json?$query"
+        }
+
+        /**
+         * REST search URL in the shape Redlib uses: `<path>.json?q=…&include_over_18=on`.
+         * [path] is relative to oauth.reddit.com and already ends in `.json`.
+         */
+        internal fun restSearchUrl(
+            path: String,
+            query: String,
+            sort: Sort?,
+            timeSorting: TimeSorting?,
+            after: String?,
+            type: String? = null,
+            restrictToSubreddit: Boolean = false,
+        ): String {
+            val params = buildList {
+                add("q=" + java.net.URLEncoder.encode(query, "UTF-8"))
+                type?.let { add("type=$it") }
+                if (restrictToSubreddit) add("restrict_sr=on")
+                sort?.let { add("sort=" + it.type) }
+                timeSorting?.let { add("t=" + it.type) }
+                add("include_over_18=on")
+                add("raw_json=1")
+                add("limit=$PAGE_SIZE")
+                after?.let { add("after=" + java.net.URLEncoder.encode(it, "UTF-8")) }
+            }.joinToString("&")
+            return "$OAUTH_BASE$path?$params"
+        }
+
+        /** Replaces GraphQL-derived posts with REST /by_id data, keeping feed order. */
+        internal fun mergeById(children: JSONArray, byId: JSONObject): JSONArray {
+            val full = HashMap<String, JSONObject>()
+            val restChildren = byId.optJSONObject("data")?.optJSONArray("children") ?: JSONArray()
+            for (i in 0 until restChildren.length()) {
+                val child = restChildren.optJSONObject(i) ?: continue
+                val name = child.optJSONObject("data")?.optString("name").orEmpty()
+                if (name.isNotEmpty()) full[name] = child
+            }
+            val merged = JSONArray()
+            for (i in 0 until children.length()) {
+                val child = children.optJSONObject(i) ?: continue
+                val name = child.optJSONObject("data")?.optString("name").orEmpty()
+                merged.put(full[name] ?: child)
+            }
+            return merged
+        }
+
+        private fun mediaSource(json: JSONObject?): Triple<String, Int, Int>? {
+            val url = json?.optString("url").orEmpty()
+            if (url.isBlank()) return null
+            val dims = json?.optJSONObject("dimensions")
+            return Triple(url, dims?.optInt("width") ?: 0, dims?.optInt("height") ?: 0)
+        }
+
+        /** Largest resized image (up to 1080px wide) before the original. */
+        private fun displaySource(sizes: JSONObject?): Triple<String, Int, Int>? =
+            mediaSource(sizes?.optJSONObject("xxxlarge"))
+                ?: mediaSource(sizes?.optJSONObject("xxlarge"))
+                ?: mediaSource(sizes?.optJSONObject("xlarge"))
+                ?: mediaSource(sizes?.optJSONObject("source"))
+
+        /** Legacy `preview` object from GraphQL `media.still`, or a gallery's first image. */
+        internal fun graphQlPreview(post: JSONObject): JSONObject? {
+            val still = post.optJSONObject("media")?.optJSONObject("still")
+            val firstGalleryAsset = post.optJSONObject("gallery")?.optJSONArray("items")
+                ?.optJSONObject(0)?.optJSONObject("media")
+            val (url, width, height) = displaySource(still)
+                ?: displaySource(firstGalleryAsset)
+                ?: firstGalleryAsset?.optString("url")?.takeIf { it.isNotBlank() }?.let {
+                    Triple(it, firstGalleryAsset.optInt("width"), firstGalleryAsset.optInt("height"))
+                }
+                ?: return null
+            val image = JSONObject()
+                .put("source", JSONObject().put("url", url).put("width", width).put("height", height))
+                .put("resolutions", JSONArray())
+            return JSONObject().put("images", JSONArray().put(image)).put("enabled", true)
+        }
+
+        /** Legacy `media.reddit_video` from GraphQL `media.streaming`/`download`. */
+        internal fun graphQlRedditVideo(media: JSONObject): JSONObject? {
+            val streaming = media.optJSONObject("streaming") ?: return null
+            val url = media.optJSONObject("download")?.optString("url")?.takeIf { it.isNotBlank() }
+                ?: streaming.optString("hlsUrl").takeIf { it.isNotBlank() }
+                ?: return null
+            val dims = streaming.optJSONObject("dimensions")
+            val video = JSONObject()
+                .put("fallback_url", url)
+                .put("width", dims?.optInt("width") ?: 0)
+                .put("height", dims?.optInt("height") ?: 0)
+                .put("duration", 0)
+                .put("is_gif", streaming.optBoolean("isGif", false))
+            return JSONObject().put("reddit_video", video)
+        }
+
+        /** Legacy `gallery_data` and `media_metadata` from GraphQL `gallery.items`. */
+        internal fun graphQlGallery(post: JSONObject): Pair<JSONObject, JSONObject>? {
+            val items = post.optJSONObject("gallery")?.optJSONArray("items") ?: return null
+            val galleryItems = JSONArray()
+            val metadata = JSONObject()
+            for (i in 0 until items.length()) {
+                val item = items.optJSONObject(i) ?: continue
+                val asset = item.optJSONObject("media") ?: continue
+                val status = asset.optString("status")
+                if (status.isNotBlank() && status != "VALID") continue
+                val id = asset.optString("id").ifBlank { item.optString("id") }
+                val url = asset.optString("url").ifBlank {
+                    asset.optJSONObject("xxxlarge")?.optString("url").orEmpty()
+                }
+                if (id.isBlank() || url.isBlank()) continue
+                val mime = asset.optString("mimetype")
+                val source = JSONObject()
+                    .put("x", asset.optInt("width"))
+                    .put("y", asset.optInt("height"))
+                if (mime.startsWith("video")) source.put("mp4", url) else source.put("u", url)
+                val previews = JSONArray()
+                displaySource(asset)?.let { (previewUrl, w, h) ->
+                    previews.put(JSONObject().put("u", previewUrl).put("x", w).put("y", h))
+                }
+                metadata.put(id, JSONObject()
+                    .put("id", id)
+                    .put("status", "valid")
+                    .put("m", mime.ifBlank { JSONObject.NULL })
+                    .put("s", source)
+                    .put("p", previews))
+                galleryItems.put(JSONObject()
+                    .put("media_id", id)
+                    .put("caption", item.optString("caption").ifBlank { JSONObject.NULL }))
+            }
+            if (galleryItems.length() == 0) return null
+            return JSONObject().put("items", galleryItems) to metadata
         }
 
         internal fun encodeCursor(cursor: String): String = Base64.encodeToString(
