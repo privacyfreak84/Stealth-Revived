@@ -60,6 +60,7 @@ class UnredditApplication : Application(), ImageLoaderFactory, Configuration.Pro
             appTheme = preferencesRepository.getNightMode(AppCompatDelegate.MODE_NIGHT_YES).first()
         }
         Thread.setDefaultUncaughtExceptionHandler(FileUncaughtExceptionHandler(this))
+        com.cosmos.unreddit.util.DiagnosticLog.init(this)
     }
 
     override fun newImageLoader(): ImageLoader =

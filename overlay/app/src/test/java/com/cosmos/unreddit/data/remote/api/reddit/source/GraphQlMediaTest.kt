@@ -106,17 +106,25 @@ class GraphQlMediaTest {
         assertEquals(FeedRoute.GRAPHQL, GraphQlRedditSource.feedRoute(null, showNsfw = false))
         assertEquals(FeedRoute.REST_ONLY, GraphQlRedditSource.feedRoute("t3_abc", showNsfw = false))
         assertEquals(FeedRoute.GRAPHQL, GraphQlRedditSource.feedRoute("eyJ2IjoiMSJ9", showNsfw = true))
+        // REST search cursors for communities and people are fullnames too.
+        assertEquals(FeedRoute.REST_ONLY, GraphQlRedditSource.feedRoute("t5_2qh0u", showNsfw = true))
+        assertEquals(FeedRoute.REST_ONLY, GraphQlRedditSource.feedRoute("t2_abc12", showNsfw = false))
     }
 
     @Test
     fun restFeedUrlCarriesSortTimeAndCursor() {
         assertEquals(
-            "https://oauth.reddit.com/r/pics+aww/top.json?raw_json=1&limit=25&include_over_18=1&after=t3_x&t=week",
+            "https://oauth.reddit.com/r/pics%2Baww/top.json?raw_json=1&limit=25&include_over_18=1&after=t3_x&t=week",
             GraphQlRedditSource.restFeedUrl("pics+aww", Sort.TOP, TimeSorting.WEEK, "t3_x")
         )
         assertEquals(
             "https://oauth.reddit.com/r/popular/hot.json?raw_json=1&limit=25&include_over_18=1",
             GraphQlRedditSource.restFeedUrl("popular", Sort.BEST, null, null)
         )
+        // OkHttp must keep the encoded plus rather than turning it back into '+'.
+        val url = okhttp3.HttpUrl.Companion.run {
+            GraphQlRedditSource.restFeedUrl("pics+aww", Sort.NEW, null, null).toHttpUrl()
+        }
+        assertEquals("/r/pics%2Baww/new.json", url.encodedPath)
     }
 }

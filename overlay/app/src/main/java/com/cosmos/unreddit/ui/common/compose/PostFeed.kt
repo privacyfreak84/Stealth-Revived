@@ -34,9 +34,7 @@ import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.filter
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import com.cosmos.unreddit.R
 import com.cosmos.unreddit.data.model.db.PostEntity
 import com.cosmos.unreddit.data.model.preferences.ContentPreferences
@@ -44,19 +42,14 @@ import com.cosmos.unreddit.ui.base.BaseViewModel
 import kotlinx.coroutines.launch
 
 /**
- * Collects a post paging flow without duplicate posts. Reddit listings shift between page
- * requests, so the same post can come back on the next page.
+ * Collects a view model's post paging flow. The flow must be the `cachedIn` flow itself
+ * (duplicates are already dropped in PostUtil.filterPosts): wrapping it in another operator
+ * stops LazyPagingItems from reading the cached pages on its first frame, and the list then
+ * jumps back to the top whenever the screen is re-entered.
  */
 @Composable
-fun rememberPostItems(flow: Flow<PagingData<PostEntity>>): LazyPagingItems<PostEntity> {
-    val distinct = remember(flow) {
-        flow.map { data ->
-            val seen = HashSet<String>()
-            data.filter { seen.add(it.id) }
-        }
-    }
-    return distinct.collectAsLazyPagingItems()
-}
+fun rememberPostItems(flow: Flow<PagingData<PostEntity>>): LazyPagingItems<PostEntity> =
+    flow.collectAsLazyPagingItems()
 
 /** Standard post callbacks: open details, media, links, and the post action sheet. */
 @Composable

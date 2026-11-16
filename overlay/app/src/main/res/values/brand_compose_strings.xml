@@ -9,6 +9,7 @@
     <string name="action_mute">Mute</string>
     <string name="action_unmute">Unmute</string>
     <string name="action_play">Play</string>
+    <string name="video_skip_seconds">%1$d s</string>
     <string name="action_pause">Pause</string>
     <string name="action_close">Close</string>
     <string name="action_open_in_browser">Open in browser</string>

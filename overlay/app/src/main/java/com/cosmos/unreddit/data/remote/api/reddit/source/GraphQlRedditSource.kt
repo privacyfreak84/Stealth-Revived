@@ -15,6 +15,7 @@ import com.cosmos.unreddit.data.repository.PreferencesRepository
 import com.cosmos.unreddit.di.DispatchersModule.IoDispatcher
 import com.cosmos.unreddit.di.NetworkModule.GenericOkHttp
 import com.cosmos.unreddit.di.NetworkModule.RedditMoshi
+import com.cosmos.unreddit.util.DiagnosticLog
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
@@ -58,25 +59,47 @@ class GraphQlRedditSource @Inject constructor(
         timeSorting: TimeSorting?,
         after: String?
     ): Listing {
-        val showNsfw = try {
-            preferencesRepository.getContentPreferences().first().showNsfw
+        // The home feed pages several subreddit groups at once; a group that has run out
+        // carries a blank cursor and must stay empty rather than restart from page one.
+        if (after != null && after.isBlank()) return listing(JSONArray(), null)
+        return routed(
+            "subreddit feed",
+            after,
+            rest = { restSubreddit(subreddit, sort, timeSorting, after) },
+            graphQl = { graphQlSubreddit(subreddit, sort, timeSorting, after) },
+        )
+    }
+
+    private suspend fun showNsfw(): Boolean = try {
+        preferencesRepository.getContentPreferences().first().showNsfw
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        false
+    }
+
+    /**
+     * Picks REST or GraphQL for a paged request. With NSFW on, REST goes first because the
+     * logged-out GraphQL session hides mature posts; later pages stay on whichever backend
+     * produced their cursor.
+     */
+    private suspend fun routed(
+        label: String,
+        after: String?,
+        rest: suspend () -> Listing,
+        graphQl: suspend () -> Listing,
+    ): Listing = when (feedRoute(after, showNsfw())) {
+        FeedRoute.REST_ONLY -> rest()
+        FeedRoute.REST_THEN_GRAPHQL -> try {
+            rest()
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            false
+            Log.w(TAG, "REST $label failed; using GraphQL (NSFW posts may be hidden)", e)
+            DiagnosticLog.write("REST $label failed, NSFW posts may be hidden: $e")
+            graphQl()
         }
-        return when (feedRoute(after, showNsfw)) {
-            FeedRoute.REST_ONLY -> restSubreddit(subreddit, sort, timeSorting, after)
-            FeedRoute.REST_THEN_GRAPHQL -> try {
-                restSubreddit(subreddit, sort, timeSorting, after)
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                Log.w(TAG, "REST subreddit feed failed; using GraphQL (NSFW posts may be hidden)", e)
-                graphQlSubreddit(subreddit, sort, timeSorting, after)
-            }
-            FeedRoute.GRAPHQL -> graphQlSubreddit(subreddit, sort, timeSorting, after)
-        }
+        FeedRoute.GRAPHQL -> graphQl()
     }
 
     /**
@@ -127,16 +150,38 @@ class GraphQlRedditSource @Inject constructor(
         sort: Sort?,
         timeSorting: TimeSorting?,
         after: String?
-    ): Listing = searchPosts(query + " subreddit:" + subreddit, sort, timeSorting, after)
+    ): Listing = routed(
+        "subreddit search",
+        after,
+        rest = { fallback.searchInSubreddit(subreddit, query, sort, timeSorting, after) },
+        graphQl = { searchPosts(query + " subreddit:" + subreddit, sort, timeSorting, after) },
+    )
 
     override suspend fun searchPost(
         query: String,
         sort: Sort?,
         timeSorting: TimeSorting?,
         after: String?
-    ): Listing = searchPosts(query, sort, timeSorting, after)
+    ): Listing = routed(
+        "post search",
+        after,
+        rest = { fallback.searchPost(query, sort, timeSorting, after) },
+        graphQl = { searchPosts(query, sort, timeSorting, after) },
+    )
 
     override suspend fun searchSubreddit(
+        query: String,
+        sort: Sort?,
+        timeSorting: TimeSorting?,
+        after: String?
+    ): Listing = routed(
+        "community search",
+        after,
+        rest = { fallback.searchSubreddit(query, sort, timeSorting, after) },
+        graphQl = { graphQlSearchSubreddit(query, sort, timeSorting, after) },
+    )
+
+    private suspend fun graphQlSearchSubreddit(
         query: String,
         sort: Sort?,
         timeSorting: TimeSorting?,
@@ -169,6 +214,18 @@ class GraphQlRedditSource @Inject constructor(
     )
 
     override suspend fun searchUser(
+        query: String,
+        sort: Sort?,
+        timeSorting: TimeSorting?,
+        after: String?
+    ): Listing = routed(
+        "people search",
+        after,
+        rest = { fallback.searchUser(query, sort, timeSorting, after) },
+        graphQl = { graphQlSearchUser(query, sort, timeSorting, after) },
+    )
+
+    private suspend fun graphQlSearchUser(
         query: String,
         sort: Sort?,
         timeSorting: TimeSorting?,
@@ -1045,8 +1102,10 @@ class GraphQlRedditSource @Inject constructor(
          * Pages must keep using the backend that produced their cursor: REST cursors are
          * post fullnames (t3_...), GraphQL cursors are opaque.
          */
+        private val REST_CURSOR = Regex("^t[1-6]_[A-Za-z0-9]+$")
+
         internal fun feedRoute(after: String?, showNsfw: Boolean): FeedRoute = when {
-            after != null && after.startsWith("t3_") -> FeedRoute.REST_ONLY
+            after != null && REST_CURSOR.matches(after) -> FeedRoute.REST_ONLY
             after != null -> FeedRoute.GRAPHQL
             showNsfw -> FeedRoute.REST_THEN_GRAPHQL
             else -> FeedRoute.GRAPHQL
@@ -1071,7 +1130,9 @@ class GraphQlRedditSource @Inject constructor(
                     add("t=" + (timeSorting ?: TimeSorting.DAY).type)
                 }
             }.joinToString("&")
-            val name = subreddit.split('+').joinToString("+") { java.net.URLEncoder.encode(it, "UTF-8") }
+            // A literal '+' between subreddit names is not read as a multireddit by
+            // oauth.reddit.com; upstream's RedditPathInterceptor sends it as %2B too.
+            val name = subreddit.split('+').joinToString("%2B") { java.net.URLEncoder.encode(it, "UTF-8") }
             return "$OAUTH_BASE/r/$name/$restSort.json?$query"
         }
 

@@ -77,7 +77,14 @@ fun SearchField(
 ) {
     val focus = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
-    LaunchedEffect(autoFocus) { if (autoFocus) focus.requestFocus() }
+    // Focus only on first open, not every time the user comes back from a post.
+    var focusedOnce by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(autoFocus) {
+        if (autoFocus && !focusedOnce) {
+            focusedOnce = true
+            focus.requestFocus()
+        }
+    }
     TextField(
         value = value,
         onValueChange = onValueChange,

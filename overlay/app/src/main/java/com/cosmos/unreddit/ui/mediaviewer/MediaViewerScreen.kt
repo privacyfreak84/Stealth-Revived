@@ -45,7 +45,6 @@ import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -55,6 +54,11 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.material.icons.rounded.FastRewind
+import androidx.compose.material.icons.rounded.FastForward
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Slider
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -117,6 +121,9 @@ fun MediaViewerScreen(
     val media by viewModel.media.collectAsStateWithLifecycle()
     val muted by viewModel.isVideoMuted.collectAsStateWithLifecycle(initialValue = true)
     var controlsVisible by remember { mutableStateOf(true) }
+    // One video cache for the whole viewer; every video page shares it.
+    val helper = remember { ExoPlayerHelper(context) }
+    DisposableEffect(helper) { onDispose { helper.release() } }
     BackHandler(onBack = onClose)
 
     // The viewer is always dark, whatever the app theme.
@@ -149,6 +156,7 @@ fun MediaViewerScreen(
                         when (item.type) {
                             GalleryMedia.Type.VIDEO -> VideoPage(
                                 item = item,
+                                helper = helper,
                                 active = page == pager.currentPage,
                                 muted = muted,
                                 controlsVisible = controlsVisible,
@@ -337,17 +345,17 @@ private fun ZoomableImage(url: String, onTap: () -> Unit, onZoomChanged: (Boolea
     }
 }
 
-/** ExoPlayer video with Expressive controls and a wavy progress line. */
+/** ExoPlayer video with a play button, a seek slider and double-tap to skip. */
 @Composable
 private fun VideoPage(
     item: GalleryMedia,
+    helper: ExoPlayerHelper,
     active: Boolean,
     muted: Boolean,
     controlsVisible: Boolean,
     onTap: () -> Unit,
 ) {
     val context = LocalContext.current
-    val helper = remember { ExoPlayerHelper(context) }
     val player = remember(item.url) {
         item.url.toHttpUrlOrNull()?.takeIf { it.host.contains("redgifs", true) }?.let { url ->
             helper.setRequestProperties(url.queryParameterNames.associateWith { url.queryParameter(it) ?: "" })
@@ -371,20 +379,42 @@ private fun VideoPage(
         }
     }
     var playing by remember { mutableStateOf(true) }
-    var progress by remember { mutableFloatStateOf(0f) }
+    var position by remember { mutableLongStateOf(0L) }
+    var duration by remember { mutableLongStateOf(0L) }
+    // While the thumb is held, show where it is instead of the playing position.
+    var scrubbing by remember { mutableStateOf<Float?>(null) }
+    var skipHint by remember { mutableStateOf<Int?>(null) }
 
-    DisposableEffect(player) { onDispose { player.release(); helper.clearCache() } }
+    DisposableEffect(player) { onDispose { player.release() } }
     LaunchedEffect(active, playing) { player.playWhenReady = active && playing }
     LaunchedEffect(muted) { player.volume = if (muted) 0f else 1f }
     LaunchedEffect(active) {
         while (active) {
-            val duration = player.duration.takeIf { it > 0 } ?: 1L
-            progress = (player.currentPosition.toFloat() / duration).coerceIn(0f, 1f)
-            delay(100)
+            duration = player.duration.takeIf { it > 0 } ?: 0L
+            position = player.currentPosition.coerceAtLeast(0L)
+            delay(200)
         }
     }
+    LaunchedEffect(skipHint) { if (skipHint != null) { delay(650); skipHint = null } }
 
-    Box(Modifier.fillMaxSize().pointerInput(Unit) { detectTapGestures(onTap = { onTap() }) }) {
+    fun skip(by: Long) {
+        val end = player.duration.takeIf { it > 0 } ?: return
+        player.seekTo((player.currentPosition + by).coerceIn(0L, end))
+        position = player.currentPosition
+    }
+
+    Box(
+        Modifier.fillMaxSize().pointerInput(player) {
+            detectTapGestures(
+                onTap = { onTap() },
+                onDoubleTap = { tap ->
+                    val forward = tap.x > size.width / 2f
+                    skip(if (forward) SKIP_MS else -SKIP_MS)
+                    skipHint = if (forward) 1 else -1
+                },
+            )
+        },
+    ) {
         AndroidView(
             factory = {
                 StyledPlayerView(it).apply {
@@ -398,6 +428,33 @@ private fun VideoPage(
             update = { it.player = player },
             modifier = Modifier.fillMaxSize(),
         )
+        AnimatedVisibility(
+            visible = skipHint != null,
+            enter = fadeIn(), exit = fadeOut(),
+            modifier = Modifier
+                .align(if ((skipHint ?: 1) > 0) Alignment.CenterEnd else Alignment.CenterStart)
+                .padding(horizontal = 40.dp),
+        ) {
+            Surface(
+                shape = MaterialShapes.Pill.toShape(),
+                color = MaterialTheme.colorScheme.secondaryContainer,
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+                ) {
+                    Icon(
+                        if ((skipHint ?: 1) > 0) Icons.Rounded.FastForward else Icons.Rounded.FastRewind,
+                        null,
+                    )
+                    Text(
+                        stringResource(R.string.video_skip_seconds, SKIP_MS / 1000),
+                        style = MaterialTheme.typography.labelLargeEmphasized,
+                        modifier = Modifier.padding(start = 6.dp),
+                    )
+                }
+            }
+        }
         AnimatedVisibility(
             controlsVisible,
             enter = fadeIn(), exit = fadeOut(),
@@ -418,21 +475,49 @@ private fun VideoPage(
         AnimatedVisibility(
             controlsVisible,
             enter = fadeIn(), exit = fadeOut(),
-            modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 104.dp),
+            modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 96.dp),
         ) {
-            Row(Modifier.fillMaxWidth().padding(horizontal = 24.dp)) {
-                LinearWavyProgressIndicator(
-                    progress = { progress },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .pointerInput(player) {
-                            detectTapGestures { tap ->
-                                val fraction = (tap.x / size.width).coerceIn(0f, 1f)
-                                if (player.duration > 0) player.seekTo((player.duration * fraction).toLong())
-                            }
-                        },
+            val fraction = scrubbing ?: if (duration > 0) position.toFloat() / duration else 0f
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+            ) {
+                TimeLabel(if (duration > 0) (fraction * duration).toLong() else position)
+                Slider(
+                    value = fraction.coerceIn(0f, 1f),
+                    onValueChange = { scrubbing = it },
+                    onValueChangeFinished = {
+                        scrubbing?.let { value -> if (duration > 0) player.seekTo((value * duration).toLong()) }
+                        position = player.currentPosition
+                        scrubbing = null
+                    },
+                    enabled = duration > 0,
+                    modifier = Modifier.weight(1f).padding(horizontal = 12.dp),
                 )
+                TimeLabel(duration)
             }
         }
     }
+}
+
+@Composable
+private fun TimeLabel(millis: Long) {
+    Text(
+        formatDuration(millis),
+        color = Color.White,
+        style = MaterialTheme.typography.labelLarge,
+        modifier = Modifier
+            .background(Color.Black.copy(alpha = 0.45f), MaterialTheme.shapes.small)
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+    )
+}
+
+private const val SKIP_MS = 10_000L
+
+internal fun formatDuration(millis: Long): String {
+    val total = (millis.coerceAtLeast(0L) / 1000L)
+    val hours = total / 3600
+    val minutes = (total % 3600) / 60
+    val seconds = total % 60
+    return if (hours > 0) "%d:%02d:%02d".format(hours, minutes, seconds) else "%d:%02d".format(minutes, seconds)
 }
